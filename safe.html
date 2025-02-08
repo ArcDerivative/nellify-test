@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Minimal 2048</title>
+  <title>Whack Weapons 2048</title>
   <style>
     body {
       font-family: sans-serif;
@@ -32,9 +32,11 @@
   </style>
 </head>
 <body>
-  <h1>Minimal 2048</h1>
+  <h1>Whack Weapons 2048</h1>
   <p>Use Arrow Keys</p>
   <div id="board"></div>
+  <div id="stack"></div>
+  
 
   <script>
     //convention e.g. for tile is that tile contains every relevant property for gameplay.
@@ -47,8 +49,22 @@
     }
 
     class TileGraphic {
-      constructor(x, y) {
-        this.x = x; this.y = y;
+      constructor(x, y, tile, size=1) {
+        this.x = x; this.y = y; this.tile = tile;
+        this.size = size
+      }
+    }
+
+    class Weapon {
+      constructor(type, level) {
+        this.type = type;
+        this.level = level;
+      }
+    }
+
+    class WeaponGraphic {
+      constructor(x, y, weapon) {
+        this.x = x; this.y = y; this.weapon = weapon;
       }
     }
 
@@ -56,10 +72,13 @@
     const size = 4;
     // 2D array representing the grid
     let grid = Array.from({ length: size }, () => Array(size).fill(null));
+    let weapons = []
+    let weaponStack = []
+    weaponStack.push(cookStack())
 
     //tileStack is a list of lists of tile graphics
     let tileStack = []
-    tileStack.push([new TileGraphic(0,0,new Tile("Bokoblin",1))])
+    tileStack.push(cookBoard())
 
     // Initialize the board with two tiles
     function init() {
@@ -70,7 +89,7 @@
 
     let lastFrameTime = 0;
     function gameLoop(currentTime) {
-      if (currentTime - lastFrameTime >= 100) {
+      if (currentTime - lastFrameTime >= 1000/60) {
         lastFrameTime = currentTime;
         drawAll();
       }
@@ -90,16 +109,28 @@
       }
       if (emptyPositions.length > 0) {
         const { r, c } = emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
-        grid[r][c] = 2;
+        grid[r][c] = new Tile (["Bokoblin","Moblin","Lizalfo"][Math.floor(Math.random() * 3)], 1);
+        //Copies the last frame ten times.
+        for (let i = 0; i < 10; i++) {
+          tileStack.push(tileStack[tileStack.length - 1].slice())
+        }
+        //Seemingly pushes all ten 
+        for (let i = 0; i < 10; i++) {
+          tileStack[tileStack.length - 10 + i].push(new TileGraphic(c*88,r*88,grid[r][c],i/10))
+        }
+        tileStack.push(cookBoard())
       }
+      
     }
 
     // Redraw the board in the DOM
     function drawAll() {
       drawBoard();
       drawTileStack();
+      drawWeaponStack();
     }
     function drawBoard() {
+      //Vestigial function that now only draws the outline of the board.
       const boardEl = document.getElementById('board');
       //Cascading deep delete of everything on the 'board' element, which seems almost like a directory or grouping.
       boardEl.innerHTML = '';
@@ -107,7 +138,6 @@
         for (let c = 0; c < size; c++) {
           const cell = document.createElement('div');
           cell.classList.add('cell');
-          cell.textContent = grid[r][c] === null ? '' : grid[r][c];
           boardEl.appendChild(cell);
         }
       }
@@ -116,17 +146,37 @@
       const boardEl = document.getElementById('board');
 
       tileStack[0].forEach(tile => {
-        const tileEl = document.createElement('div');
-        tileEl.textContent = `${lastFrameTime}`
-        tileEl.style.position = "absolute";
-        tileEl.style.left = `${tile.x * 100}px`; // Adjust scaling as needed
-        tileEl.style.top = `${tile.y * 100}px`;  // Adjust scaling as needed
-        tileEl.style.fontSize = "16px";
-        tileEl.style.color = "black"; // Change color if needed
-        tileEl.style.background = "rgba(255,255,255,0.7)"; // Optional background
-        tileEl.style.padding = "5px";
-        
-        boardEl.appendChild(tileEl);
+          const tileEl = document.createElement('div');
+
+          tileEl.style.position = "absolute";
+          tileEl.style.left = `${boardEl.offsetLeft + tile.x + (1-tile.size)*40}px`; 
+          tileEl.style.top = `${boardEl.offsetTop + tile.y + (1-tile.size)*40}px`;  
+          
+          tileEl.style.width = `${tile.size*80}px`;  // Set square width
+          tileEl.style.height = `${tile.size*80}px`; // Set square height
+          
+
+          // Center text inside the square
+          tileEl.style.display = "flex";  
+          tileEl.style.alignItems = "center";  
+          tileEl.style.justifyContent = "center";  
+          tileEl.style.color = "white"; // Makes text visible on dark red
+          tileEl.style.fontSize = "16px";  
+          tileEl.style.fontWeight = "bold";
+
+          switch (tile.tile.type) {
+            case "Bokoblin":
+              tileEl.style.background = "#8B0000"; break
+            case "Lizalfo":
+              tileEl.style.background = "#008B00"; break
+            case "Moblin":
+              tileEl.style.background = "#804080";break
+            default:
+              tileEl.style.background = "#000000";break
+          }
+          tileEl.textContent = `${tile.tile.level}`;
+          
+          boardEl.appendChild(tileEl);
       });
 
       if (tileStack.length > 1) {
@@ -134,27 +184,78 @@
       }
     }
 
+    function drawWeaponStack() {
+      //Board El is used for positioning even though stack El is the one holding the child items.
+      const boardEl = document.getElementById('board');
+      const stackEl = document.getElementById('stack');
+      stackEl.innerHTML = '';
+      weaponStack[0].forEach(weap => {
+          const weapEl = document.createElement('div');
+         
+          weapEl.style.position = "absolute";
+          weapEl.style.left = `${boardEl.offsetLeft + weap.x}px`; 
+          weapEl.style.top = `${boardEl.offsetTop + 88 * 4 + weap.y}px`;  
+          
+          weapEl.style.width = `20px`;  // Set square width
+          weapEl.style.height = `20px`; // Set square height
+          
+
+          // Center text inside the square
+          weapEl.style.display = "flex";  
+          weapEl.style.alignItems = "center";  
+          weapEl.style.justifyContent = "center";  
+          weapEl.style.color = "black"; // Makes text visible on dark red
+          weapEl.style.fontSize = "16px";  
+          weapEl.style.fontWeight = "bold";
+
+          switch (weap.weapon.type) {
+            case "spear":
+              weapEl.style.background = "#8B5A2B"; break
+            case "sword":
+              weapEl.style.background = "#B0C4DE"; break
+            case "two handed":
+              weapEl.style.background = "#B8860B";break
+            default:
+              weapEl.style.background = "#000000";break
+          }
+          weapEl.textContent = `${weap.weapon.level}`;
+          stackEl.appendChild(weapEl);
+      });
+      if (weaponStack.length > 1) {
+        weaponStack.shift()
+      }
+    }
     //Cooks and returns a render of the board as reflected in the memory
     //    regardless of any current animations to the contrary
     function cookBoard() {
       let cook = []
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
-          cook.push(new TileGraphic(c,r,new Tile("Bokoblin",2)))
+          if (grid[r][c] != null) {
+            cook.push(new TileGraphic(c*88,r*88,grid[r][c]))
+          }
         }
       }
       return cook
     }
 
-    // Move all tiles in one row/col to the front (for merges)
-    // Example usage: for "moveLeft", we pass each row as a 1D array.
+    function cookStack() {
+      let cook = []
+      for (let i = 0; i < weapons.length; i++) {
+          cook.push(new WeaponGraphic(i*24,0,weapons[i]))
+        }
+      return cook
+    }
+
+
+    //DEPRECATED
     function compressAndMerge(row) {
       // 1) Filter out zeros
       row = row.filter(val => val !== null);
       // 2) Merge adjacent equal tiles
       for (let i = 0; i < row.length - 1; i++) {
-        if (row[i] === row[i + 1]) {
-          row[i] *= 2;
+        if (row[i].type === row[i + 1].type && row[i].level === row[i + 1].level) {
+          row[i].level *= 2;
           row[i + 1] = null;
           i++; // skip next
         }
@@ -167,27 +268,86 @@
       }
       return row;
     }
+    function compressAndShift(row) {
+      //Returns the new row and all of its shifts
+      let shifts = [0,0,0,0]
+      
+      // 1) All tiles go as far to the "left" as they can without hitting any other tile.
+      
+
+      for (let i = 0; i < 4; i++) {
+        if (row[i] !== null) {
+          let j = i
+          while (j > 0 && (row[j-1] === null)) {
+            shifts[i] += 1
+            row[j-1] = row[j]
+            row[j] = null
+            j -= 1
+          }
+          if (j > 0 && !alreadyMerged && row[j-1].type === row[j].type && row[j-1].level === row[j].level) {
+            shifts[i] += 1
+            weaponQueue.push(new Weapon({ "Bokoblin": "sword", "Moblin": "two handed", "Lizalfo": "spear"}[row[j].type],1))
+            row[j-1] = {...row[j]}
+            row[j-1].level *= 2
+            row[j] = null
+            alreadyMerged = true
+          }
+        }
+      }
+      return [row,shifts];
+    }
 
     // Move entire grid to the left
     function moveLeft() {
+      tileStack = Array.from({ length: 10 }, () => []);
+      for (let r = 0; r < size; r++) {
+        // Reverse, merge, reverse back
+        const full = compressAndShift(grid[r].slice());
+
+        //Push animation BEFORE updating grid
+        for (let c = 0; c < size; c++) {
+          if (grid[r][c] != null) {
+            for (let i = 0; i < 10; i++) {
+              tileStack[i].push(new TileGraphic(c*88 - (i+1)*8.8*full[1][c],r*88,grid[r][c]))
+            }
+          }
+        }
+        grid[r] = full[0]; 
+      }
+      tileStack.push(cookBoard())
+      /*
+
       for (let r = 0; r < size; r++) {
         const newRow = compressAndMerge(grid[r]);
         grid[r] = newRow;
       }
+      tileStack.push(cookBoard())*/
     }
-
-    // Move entire grid to the right
     function moveRight() {
+      tileStack = Array.from({ length: 10 }, () => []);
       for (let r = 0; r < size; r++) {
         // Reverse, merge, reverse back
         const reversed = grid[r].slice().reverse();
-        const merged = compressAndMerge(reversed);
-        grid[r] = merged.reverse();
-      }
-    }
+        const full = compressAndShift(reversed);
 
-    // Move entire grid up
+        //Push animation BEFORE updating grid
+        for (let c = 0; c < size; c++) {
+          if (grid[r][c] != null) {
+            for (let i = 0; i < 10; i++) {
+              //For some reason, we seem to have changed the value on the grid, without even 
+             tileStack[i].push(new TileGraphic(c*88 + (i+1)*8.8*full[1][3-c],r*88,grid[r][c]))
+             //tileStack[i].push(new TileGraphic(c*88 + (i+1)*8.8*full[1][3-c],r*88,new Tile("bord", full[0].reverse())))
+            }
+          }
+        }
+        grid[r] = full[0].reverse(); 
+      }
+      //tileStack.push(cookBoard())
+
+      tileStack.push(cookBoard())
+    }
     function moveUp() {
+      tileStack = Array.from({ length: 10 }, () => []);
       for (let c = 0; c < size; c++) {
         // Build a column array
         let col = [];
@@ -195,35 +355,64 @@
           col.push(grid[r][c]);
         }
         // Merge
-        col = compressAndMerge(col);
+        //col = compressAndMerge(col);
+        const full = compressAndShift(col);
+
+        //Push animation BEFORE updating grid
+        for (let r = 0; r < size; r++) {
+          if (grid[r][c] != null) {
+            for (let i = 0; i < 10; i++) {
+              tileStack[i].push(new TileGraphic(c*88, r*88-(i+1)*8.8*full[1][r],grid[r][c]))
+            }
+          }
+        }
+
         // Assign back
         for (let r = 0; r < size; r++) {
-          grid[r][c] = col[r];
-        }
-      }
+          grid[r][c] = full[0][r];
+        }        
+      } 
+      tileStack.push(cookBoard())
     }
-
-    // Move entire grid down
     function moveDown() {
+
+
+      tileStack = Array.from({ length: 10 }, () => []);
       for (let c = 0; c < size; c++) {
+        // Build a column array
         let col = [];
         for (let r = 0; r < size; r++) {
           col.push(grid[r][c]);
         }
-        // Reverse, merge, reverse
-        col = col.reverse();
-        col = compressAndMerge(col);
-        col = col.reverse();
+        // Merge
+        //col = compressAndMerge(col);
+        const full = compressAndShift(col.reverse());
+
+        
+        //Push animation BEFORE updating grid
+        for (let r = 0; r < size; r++) {
+          if (grid[r][c] != null) {
+            for (let i = 0; i < 10; i++) {
+              tileStack[i].push(new TileGraphic(c*88, r*88+(i+1)*8.8*full[1][3-r],grid[r][c]))
+            }
+          }
+        }
+
         // Assign back
         for (let r = 0; r < size; r++) {
-          grid[r][c] = col[r];
+          grid[r][c] = full[0][3-r];
         }
       }
+      tileStack.push(cookBoard())
+
     }
 
+    let alreadyMerged = false
+    let weaponQueue = []
     // Handle arrow key presses
     function handleKey(e) {
       let moved = false;
+      alreadyMerged = false;
       switch (e.key) {
         case 'ArrowLeft':
           moveLeft();
@@ -242,10 +431,25 @@
           moved = true;
           break;
       }
-      // If we moved, spawn a new tile and redraw
       if (moved) {
+        let lastWeapon = null
+        while (weaponQueue.length > 0) {
+          weaponQueue.shift() /*
+          if (weapons.length > 0) {
+            lastWeapon = weapons[weapons.length - 1]
+          }
+          let pushOccured = false
+          for (let i = 0; i < weaponQueue.length; i++) {
+            //Replace with code actually checking whether the two are fusable
+            if (weaponQueue[i].type == lastWeapon.type) {
+              weapons.push(weaponQueue.remove(i))
+              pushOccured = true
+            }
+          }
+          if (!pushOccured) {weapons.push(weaponQueue.shift())}*/
+        }
+        weaponStack.push(cookStack()) 
         spawnRandomTile();
-        drawAll();
       }
     }
 
