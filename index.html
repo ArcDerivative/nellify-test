@@ -1,13 +1,141 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Zelda 2048</title>
-  <link rel="stylesheet" href="style.css" />
+  <!-- Character encoding ensures correct display of text -->
+  <meta charset="UTF-8">
+
+  <!-- Title shows up in browser tabs/bookmarks -->
+  <title>HTML Features Demo</title>
+
+  <!-- Meta description (SEO) -->
+  <meta name="description" content="Sample HTML structure demonstrating common features">
+  
+  <!-- Inline CSS just for demonstration; typically you'd use a separate .css file -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    header, nav, footer {
+      background-color: #f0f0f0;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    img {
+      max-width: 100%; /* So images don't overflow */
+      height: auto;
+    }
+    table, th, td {
+      border: 1px solid #333;
+      border-collapse: collapse;
+      padding: 8px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Zelda 2048</h1>
-  <div id="game-container"></div>
-  <script src="script.js"></script>
+
+  <!-- Header section typically for logo, title, hero image, etc. -->
+  <header>
+    <h1>Welcome to My HTML Demo</h1>
+    <p>This is a short example page showing common HTML tags.</p>
+  </header>
+  
+  <!-- Navigation bar -->
+  <nav>
+    <a href="#section1">Section 1</a> | 
+    <a href="#section2">Section 2</a> | 
+    <a href="#section3">Section 3</a>
+  </nav>
+  
+  <!-- Main content area -->
+  <main>
+    <!-- Section 1 -->
+    <section id="section1">
+      <h2>Section 1: Basic Text</h2>
+      <p>Lorem ipsum <strong>bold text</strong> dolor sit amet, 
+         <em>italic text</em> elit. <br>
+         You can add line breaks with &lt;br&gt; if needed.</p>
+         
+      <p>Here’s a link to <a href="https://www.example.com" target="_blank">Example</a>.</p>
+    </section>
+    
+    <!-- Section 2 -->
+    <section id="section2">
+      <h2>Section 2: Lists and Images</h2>
+      
+      <h3>Unordered List</h3>
+      <ul>
+        <li>Item A</li>
+        <li>Item B</li>
+        <li>Item C</li>
+      </ul>
+      
+      <h3>Ordered List</h3>
+      <ol>
+        <li>Step One</li>
+        <li>Step Two</li>
+        <li>Step Three</li>
+      </ol>
+      
+      <h3>Image Example</h3>
+      <p>
+        <!-- Replace the src with an actual link or local file path -->
+        <img src="https://via.placeholder.com/300x150.png" alt="Sample Placeholder Image">
+      </p>
+    </section>
+    
+    <!-- Section 3 -->
+    <section id="section3">
+      <h2>Section 3: Table and Form</h2>
+      
+      <h3>Simple Table</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Master Sword</td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td>Hylian Shield</td>
+            <td>1</td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <h3>Basic Form</h3>
+      <form action="#" method="POST">
+        <label for="hero">Favorite Zelda Character:</label><br>
+        <input type="text" id="hero" name="hero" placeholder="Link">
+        <br><br>
+        
+        <label for="item">Favorite Item:</label><br>
+        <select id="item" name="item">
+          <option value="bomb">Bomb</option>
+          <option value="boomerang">Boomerang</option>
+          <option value="bow">Bow & Arrow</option>
+        </select>
+        <br><br>
+        
+        <input type="submit" value="Submit">
+      </form>
+    </section>
+  </main>
+  
+  <!-- Footer often for contact info, copyright, etc. -->
+  <footer>
+    <p>© 2025 Zelda Fan Club. All rights reserved.</p>
+  </footer>
+
+  <!-- Optional JavaScript snippet for demonstration -->
+  <script>
+    console.log("HTML Features Demo loaded!");
+  </script>
+
 </body>
 </html>
