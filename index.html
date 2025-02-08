@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Minimal 2048</title>
+  <title>Neapolitan 2048</title>
   <style>
     body {
       font-family: sans-serif;
@@ -59,7 +59,6 @@
 
     //tileStack is a list of lists of tile graphics
     let tileStack = []
-    tileStack.push([new TileGraphic(0,0,new Tile("Bokoblin",1))])
 
     // Initialize the board with two tiles
     function init() {
@@ -90,7 +89,7 @@
       }
       if (emptyPositions.length > 0) {
         const { r, c } = emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
-        grid[r][c] = 2;
+        grid[r][c] = new Tile (["Bokoblin","Moblin","Lizalfo"][Math.floor(Math.random() * 3)], 1);
       }
     }
 
@@ -125,7 +124,7 @@
           
           tileEl.style.width = "80px";  // Set square width
           tileEl.style.height = "80px"; // Set square height
-          tileEl.style.background = "#8B0000"; // Make it red
+          
 
           // Center text inside the square
           tileEl.style.display = "flex";  
@@ -134,7 +133,16 @@
           tileEl.style.color = "white"; // Makes text visible on dark red
           tileEl.style.fontSize = "16px";  
           tileEl.style.fontWeight = "bold";
-          tileEl.textContent = `B ${tile.tile.level}`
+
+          switch (tile.tile.type) {
+            case "Bokoblin":
+              tileEl.style.background = "#8B0000"; break
+            case "Lizalfo":
+              tileEl.style.background = "#008B00"; break
+            default:
+              tileEl.style.background = "#804080";break
+          }
+          tileEl.textContent = `${tile.tile.level}`;
           
           boardEl.appendChild(tileEl);
       });
@@ -151,7 +159,7 @@
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
           if (grid[r][c] != null) {
-            cook.push(new TileGraphic(c*88,r*88,new Tile("Bokoblin",grid[r][c])))
+            cook.push(new TileGraphic(c*88,r*88,grid[r][c]))
           }
         }
       }
@@ -165,8 +173,8 @@
       row = row.filter(val => val !== null);
       // 2) Merge adjacent equal tiles
       for (let i = 0; i < row.length - 1; i++) {
-        if (row[i] === row[i + 1]) {
-          row[i] *= 2;
+        if (row[i].type === row[i + 1].type && row[i].level === row[i + 1].level) {
+          row[i].level *= 2;
           row[i + 1] = null;
           i++; // skip next
         }
