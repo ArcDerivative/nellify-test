@@ -72,13 +72,24 @@
     const size = 4;
     // 2D array representing the grid
     let grid = Array.from({ length: size }, () => Array(size).fill(null));
-    let weapons = []
-    let weaponStack = []
-    weaponStack.push(cookStack())
-
     //tileStack is a list of lists of tile graphics
     let tileStack = []
     tileStack.push(cookBoard())
+
+    let weapons = []
+    for (let i = 0; i < 4; i++) {
+    weapons.push(new Weapon("sword", 1))
+    weapons.push(new Weapon("spear", 1))
+    weapons.push(new Weapon("two handed", 1))}
+    let weaponStack = []
+    let weaponWidth = 29
+    let weaponBuffer = 5
+    //Max weapons wieldable at once
+    let weaponCap = 10
+  
+    weaponStack.push(cookStack())
+
+    
 
     // Initialize the board with two tiles
     function init() {
@@ -184,7 +195,6 @@
         tileStack.shift()
       }
     }
-
     function drawWeaponStack() {
       //Board El is used for positioning even though stack El is the one holding the child items.
       const boardEl = document.getElementById('board');
@@ -197,8 +207,8 @@
           weapEl.style.left = `${boardEl.offsetLeft + weap.x}px`; 
           weapEl.style.top = `${boardEl.offsetTop + 88 * 4 + weap.y}px`;  
           
-          weapEl.style.width = `20px`;  // Set square width
-          weapEl.style.height = `20px`; // Set square height
+          weapEl.style.width = `${weaponWidth}px`;  // Set square width
+          weapEl.style.height = `${weaponWidth}px`; // Set square height
           
 
           // Center text inside the square
@@ -229,10 +239,12 @@
     }
 
     function drawDebug() {
+      const boardEl = document.getElementById('board');
       const dg = document.createElement('div');
       dg.style.position = "absolute"; 
+      dg.style.top = `${boardEl.offsetTop + 88 * 4 + weaponWidth + weaponBuffer}px`; 
       dg.textContent = `GLOBAL DEBUG: ${debug}`;
-      document.getElementById('stack').appendChild(dg);
+      boardEl.appendChild(dg);
     }
     //Cooks and returns a render of the board as reflected in the memory
     //    regardless of any current animations to the contrary
@@ -251,7 +263,7 @@
     function cookStack() {
       let cook = []
       for (let i = 0; i < weapons.length; i++) {
-          cook.push(new WeaponGraphic(i*24,0,weapons[i]))
+          cook.push(new WeaponGraphic(i*(weaponWidth+weaponBuffer)+(weaponBuffer/2),0,weapons[i]))
         }
       return cook
     }
@@ -463,6 +475,34 @@
     }
   }
 
+    const mousePosition = document.createElement("div");
+    mousePosition.style.position = "fixed";
+    mousePosition.style.top = "10px";
+    mousePosition.style.left = "10px";
+    mousePosition.style.background = "rgba(0,0,0,0.7)";
+    mousePosition.style.color = "white";
+    mousePosition.style.padding = "5px";
+    mousePosition.style.fontSize = "14px";
+    document.body.appendChild(mousePosition);
+
+    const boardEl = document.getElementById('board'); // Ensure the board element exists
+
+    let relativeX
+    let relativeY
+    let leapsAndBounds
+
+    document.addEventListener("mousemove", (event) => {
+      const boardRect = boardEl.getBoundingClientRect(); // Get board position
+
+      // Calculate relative position
+      relativeX = event.clientX - boardRect.left;
+      relativeY = event.clientY - boardRect.top;
+      leapsAndBounds = (relativeX - (weaponWidth + weaponBuffer)/2) / (weaponWidth + weaponBuffer)
+      if (leapsAndBounds < 0) {leapsAndBounds = 0}
+      if (leapsAndBounds > weaponCap - 1) {leapsAndBounds = weaponCap - 1}
+
+      mousePosition.textContent = `X: ${relativeX}, Y: ${relativeY}, weap: ${leapsAndBounds}`;
+    });
     window.addEventListener('keydown', handleKey);
     init();
   </script>
