@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Cute oscillations 2048</title>
+  <title>Mouse tracing 2048</title>
   <style>
     body {
       font-family: sans-serif;
@@ -32,8 +32,8 @@
   </style>
 </head>
 <body>
-  <h1>Cute oscillations 2048</h1>
-  <p>Appears to allow you to flip tiles (but doesn't)</p>
+  <h1>Mouse tracing 2048</h1>
+  <p>Click the weapons</p>
   <div id="board"></div>
   <div id="stack"></div>
   
@@ -453,6 +453,7 @@
     let weaponQueue = []
     // Handle arrow key presses
     function handleKey(e) {
+      debug = "button"
       let moved = false;
       alreadyMerged = false;
       switch (e.key) {
@@ -496,6 +497,11 @@
     }
   }
 
+    function handleClick(e) {
+      if (mouseRow === 4) {
+        debug = "click"
+      }
+    }
     const mousePosition = document.createElement("div");
     mousePosition.style.position = "fixed";
     mousePosition.style.top = "10px";
@@ -540,6 +546,10 @@
       mousePosition.textContent = `X: ${relativeX}, Y: ${relativeY}, row: ${mouseRow} weap: ${mouseCol}`;
     });
     window.addEventListener('keydown', handleKey);
+
+    let mouseDownDetected = false;
+    document.addEventListener('mousedown', () => {if (!mouseDownDetected) {handleClick(event);}; mouseDownDetected = true;}); 
+    document.addEventListener('mouseup', (event) => {mouseDownDetected = false;});
     init();
   </script>
 </body>
