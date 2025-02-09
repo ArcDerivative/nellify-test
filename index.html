@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Hovering 2048</title>
+  <title>Attack mode 2048</title>
   <style>
     body {
       font-family: sans-serif;
@@ -32,8 +32,8 @@
   </style>
 </head>
 <body>
-  <h1>Hovering 2048</h1>
-  <p>Hovering over a weapon shows its details (in the top left)</p>
+  <h1>Attack mode 2048</h1>
+  <p>Mipha would be proud</p>
   <div id="board"></div>
   <div id="stack"></div>
   
@@ -145,6 +145,8 @@
     function drawBoard() {
       //Vestigial function that now only draws the outline of the board.
       const boardEl = document.getElementById('board');
+      if (attackMode) {document.body.style.background = "#FFb0b0"}
+      else {document.body.style.background = "white"}
       //Cascading deep delete of everything on the 'board' element, which seems almost like a directory or grouping.
       boardEl.innerHTML = '';
       for (let r = 0; r < size; r++) {
@@ -211,13 +213,13 @@
          
           weapEl.style.position = "absolute";
           
+          //We really should have separate code for size modifier. Will add if any problems arise.
           if (weap.weapon.selected == "fire") {
-            weapEl.style.left = `${boardEl.offsetLeft + weap.x - weaponBuffer}px`; 
-            weapEl.style.top = `${boardEl.offsetTop + 88 * 4 + weap.y - weaponBuffer}px`;  
-
-            weapEl.style.width = `${weaponWidth + weaponBuffer*2}px`;  // Set square width
-            weapEl.style.height = `${weaponWidth + weaponBuffer*2}px`; // Set square height
-          } else {
+            weap.size = 1.2
+          } else if (weap.size == 1.2) {
+            weap.size = 1
+          }
+          
             let leftPush = 0
             if (weap.weapon.selected == "merge left") {
               leftPush = -weaponBuffer*(Math.sin(selectionLoopSeed/10) ** 2)
@@ -228,7 +230,7 @@
             weapEl.style.top = `${boardEl.offsetTop + 88 * 4 + weap.y + (1-weap.size)*(weaponWidth/2)}px`;  
             weapEl.style.width = `${weaponWidth * weap.size * weap.shear}px`;  // Set square width
             weapEl.style.height = `${weaponWidth * weap.size}px`; // Set square height
-          }
+          
 
           // Center text inside the square
           weapEl.style.display = "flex";  
@@ -263,7 +265,7 @@
         
         weaponStack.shift()
       } else {
-        allowSelectWeapon = true;
+        if (!attackMode) {allowSelectWeapon = true}
         for (let i = 0; i < weapons.length; i++) {
           if (mouseRow === 4) {
             //fire weapon
@@ -609,6 +611,17 @@
   }
 
     function handleClick(e) {
+     if(!attackMode) {
+      if (currentWeapon !== null) {
+        attackMode = true
+        allowSelectWeapon = false
+      }
+     }
+     if (attackMode) {
+      if (mouseRow == -1) {
+        attackMode = false
+      }
+     }
       if (mouseRow === 4) {
         for (let i = 0; i < weapons.length - 1; i++) {
           if (weapons[i].selected === "merge right") {
@@ -656,21 +669,28 @@
       if (allowSelectWeapon && relativeY > 88*4 + weaponWidth + (weaponBuffer/2)) {
         //This only throws immediately if weapon selection is allowed.
         mouseRow = -1
-      } else if (allowSelectWeapon && relativeX < 0 || relativeX > 352-8) {
+      } else if (allowSelectWeapon && relativeY > 88*4 && (relativeX < 0 || relativeX > 352-8) ) {
         mouseRow = -1
       } else if (allowSelectWeapon && relativeY > 88*4 - (weaponBuffer/2)) {
         mouseRow = 4
         mouseCol = (relativeX - (weaponWidth + weaponBuffer)/2) / (weaponWidth + weaponBuffer)
         if (mouseCol < 0) {mouseCol = 0}
         if (mouseCol > weaponCap - 1) {mouseCol = weaponCap - 1}
-      } else { mouseRow = -1;
-        //TODO: Handle selection of actual rows by putting mouse row from 0 to 3.
-        //  Set actual mouse row to -1 if the mouse position is more than let=OVERREACH in ANY direction from the board,
-        //  regardless of whether weapons are electable.
+      } else { 
+        if (Math.min(relativeX, relativeY) < -88) {
+          mouseRow = -1
+        } else if (Math.max(relativeX, relativeY) > 88*5) {
+          mouseRow = -1
+        } else if (attackMode && relativeY > 88*4) {
+          mouseRow = -1
+        } else {
+          mouseRow = (relativeY - 40) / 88
+          mouseCol = (relativeX - 40) / 88
+        }
       }
 
 
-      mousePosition.textContent = `current weapon: ${printCurrentWeapon()}`;
+      mousePosition.textContent = `row: ${mouseRow}, col: ${mouseCol} current weapon: ${printCurrentWeapon()}`;
     });
     window.addEventListener('keydown', handleKey);
 
