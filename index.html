@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Weapon swapping 2048</title>
+  <title>Merge pulsing 2048</title>
   <style>
     body {
       font-family: sans-serif;
@@ -32,8 +32,8 @@
   </style>
 </head>
 <body>
-  <h1>Weapon swapping 2048</h1>
-  <p>Weapons are clickable, and swapping them actually works</p>
+  <h1>Merge Pulsing 2048</h1>
+  <p>It seems a little delayed...?</p>
   <div id="board"></div>
   <div id="stack"></div>
   
@@ -125,8 +125,8 @@
       if (emptyPositions.length > 0) {
         const { r, c } = emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
         grid[r][c] = new Tile (["Bokoblin","Moblin","Lizalfo"][Math.floor(Math.random() * 3)], 1);
-        //Copies the last frame ten times.
-        for (let i = 0; i < 10; i++) {
+        //Assumes something is actually taking place on screen.
+        while (tileStack.length < 20) {
           tileStack.push(tileStack[tileStack.length - 1].slice())
         }
         //Seemingly pushes all ten 
@@ -311,6 +311,7 @@
       //Returns the new row and all of its shifts
       alreadyMerged = false
       let shifts = [0,0,0,0]
+      let pulses = [0,0,0,0]
       
       // 1) All tiles go as far to the "left" as they can without hitting any other tile.
       
@@ -325,6 +326,7 @@
           }
           if (j > 0 && !alreadyMerged && row[j-1].type === row[j].type && row[j-1].level === row[j].level) {
             shifts[i] += 1
+            pulses[j-1] = 1
             if (weapons.length + weaponQueue.length < weaponCap - 1) {
               weaponQueue.push(new Weapon({ "Bokoblin": "sword", "Moblin": "two handed", "Lizalfo": "spear"}[row[j].type],1))
             }
@@ -335,12 +337,12 @@
           }
         }
       }
-      return [row,shifts];
+      return [row,shifts,pulses];
     }
 
     // Move entire grid to the left
     function moveLeft() {
-      tileStack = Array.from({ length: 10 }, () => []);
+      tileStack = Array.from({ length: 20 }, () => [])
       for (let r = 0; r < size; r++) {
         // Reverse, merge, reverse back
         const full = compressAndShift(grid[r].slice());
@@ -353,7 +355,19 @@
             }
           }
         }
-        grid[r] = full[0]; 
+        grid[r] = full[0];
+        //Degenerate no op if nothing merges. No worries, as next tile animation will overwrite.
+        for (let c = 0; c < size; c++) {
+          if (grid[r][c] != null) {
+            for (let i = 10; i < 20; i++) {
+              let s = 1
+              if (full[2][c] == 1) {
+                s += (5 - Math.abs(i - 15))/20
+              }
+              tileStack[i].push(new TileGraphic(c*88,r*88,grid[r][c],s))
+            }
+          }
+        }
       }
       tileStack.push(cookBoard())
       /*
@@ -365,7 +379,7 @@
       tileStack.push(cookBoard())*/
     }
     function moveRight() {
-      tileStack = Array.from({ length: 10 }, () => []);
+      tileStack = Array.from({ length: 20 }, () => []);
       for (let r = 0; r < size; r++) {
         // Reverse, merge, reverse back
         const reversed = grid[r].slice().reverse();
@@ -382,13 +396,24 @@
           }
         }
         grid[r] = full[0].reverse(); 
+        for (let c = 0; c < size; c++) {
+          if (grid[r][c] != null) {
+            for (let i = 10; i < 20; i++) {
+              let s = 1
+              if (full[2][3-c] == 1) {
+                s += (5 - Math.abs(i - 15))/20
+              }
+              tileStack[i].push(new TileGraphic(c*88,r*88,grid[r][c],s))
+            }
+          }
+        }
       }
       //tileStack.push(cookBoard())
 
       tileStack.push(cookBoard())
     }
     function moveUp() {
-      tileStack = Array.from({ length: 10 }, () => []);
+      tileStack = Array.from({ length: 20 }, () => []);
       for (let c = 0; c < size; c++) {
         // Build a column array
         let col = [];
@@ -411,12 +436,23 @@
         // Assign back
         for (let r = 0; r < size; r++) {
           grid[r][c] = full[0][r];
-        }        
+        }
+        for (let r = 0; r < size; r++) {
+          if (grid[r][c] != null) {
+            for (let i = 10; i < 20; i++) {
+              let s = 1
+              if (full[2][r] == 1) {
+                s += (5 - Math.abs(i - 15))/20
+              }
+              tileStack[i].push(new TileGraphic(c*88,r*88,grid[r][c],s))
+            }
+          }
+        }
       } 
       tileStack.push(cookBoard())
     }
     function moveDown() {
-      tileStack = Array.from({ length: 10 }, () => []);
+      tileStack = Array.from({ length: 20 }, () => []);
       for (let c = 0; c < size; c++) {
         // Build a column array
         let col = [];
@@ -441,9 +477,19 @@
         for (let r = 0; r < size; r++) {
           grid[r][c] = full[0][3-r];
         }
+        for (let r = 0; r < size; r++) {
+          if (grid[r][c] != null) {
+            for (let i = 10; i < 20; i++) {
+              let s = 1
+              if (full[2][3-r] == 1) {
+                s += (5 - Math.abs(i - 15))/20
+              }
+              tileStack[i].push(new TileGraphic(c*88,r*88,grid[r][c],s))
+            }
+          }
+        }
       }
       tileStack.push(cookBoard())
-
     }
 
     let alreadyMerged = false
