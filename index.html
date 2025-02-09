@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Merge pulsing 2048</title>
+  <title>Partially animated 2048</title>
   <style>
     body {
       font-family: sans-serif;
@@ -32,8 +32,8 @@
   </style>
 </head>
 <body>
-  <h1>Merge Pulsing 2048</h1>
-  <p>It seems a little delayed...?</p>
+  <h1>Partially animated 2048</h1>
+  <p>schlEEP!!</p>
   <div id="board"></div>
   <div id="stack"></div>
   
@@ -66,9 +66,9 @@
     }
 
     class WeaponGraphic {
-      constructor(x, y, weapon, size=1) {
+      constructor(x, y, weapon, size=1, shear=1) {
         this.x = x; this.y = y; this.weapon = weapon;
-        this.size=size
+        this.size=size; this.shear=shear
       }
     }
 
@@ -82,11 +82,6 @@
     tileStack.push(cookBoard())
 
     let weapons = []
-    for (let i = 0; i < 3; i++) {
-    weapons.push(new Weapon("sword", 1))
-    weapons.push(new Weapon("spear", 1))
-    //weapons.push(new Weapon("two handed", 1))
-    }
     let weaponStack = []
     let weaponWidth = 29
     let weaponBuffer = 5
@@ -176,7 +171,7 @@
           tileEl.style.alignItems = "center";  
           tileEl.style.justifyContent = "center";  
           tileEl.style.color = "white"; // Makes text visible on dark red
-          tileEl.style.fontSize = "16px";  
+          tileEl.style.fontSize = `${tile.size*16}px`;  
           tileEl.style.fontWeight = "bold";
 
           switch (tile.tile.type) {
@@ -227,9 +222,9 @@
             } else if (weap.weapon.selected == "merge right") {
               leftPush = weaponBuffer*(Math.sin(selectionLoopSeed/10) ** 2)
             } 
-            weapEl.style.left = `${boardEl.offsetLeft + weap.x + leftPush + (1-weap.size)*(weaponWidth/2)}px`; 
+            weapEl.style.left = `${boardEl.offsetLeft + weap.x + leftPush + (1-weap.size)*(weaponWidth/2) + (1-weap.shear)*weaponWidth}px`; 
             weapEl.style.top = `${boardEl.offsetTop + 88 * 4 + weap.y + (1-weap.size)*(weaponWidth/2)}px`;  
-            weapEl.style.width = `${weaponWidth * weap.size}px`;  // Set square width
+            weapEl.style.width = `${weaponWidth * weap.size * weap.shear}px`;  // Set square width
             weapEl.style.height = `${weaponWidth * weap.size}px`; // Set square height
           }
 
@@ -238,7 +233,7 @@
           weapEl.style.alignItems = "center";  
           weapEl.style.justifyContent = "center";  
           weapEl.style.color = "black"; // Makes text visible on dark red
-          weapEl.style.fontSize = "16px";  
+          weapEl.style.fontSize = `${16*weap.size*weap.shear}px`;  
           weapEl.style.fontWeight = "bold";
 
           switch (weap.weapon.type) {
@@ -326,7 +321,7 @@
           if (j > 0 && !alreadyMerged && row[j-1].type === row[j].type && row[j-1].level === row[j].level) {
             shifts[i] += 1
             pulses[j-1] = 1
-            if (weapons.length + weaponQueue.length < weaponCap - 1) {
+            if (weapons.length + weaponQueue.length < weaponCap) {
               weaponQueue.push(new Weapon({ "Bokoblin": "sword", "Moblin": "two handed", "Lizalfo": "spear"}[row[j].type],1))
             }
             row[j-1] = {...row[j]}
@@ -344,6 +339,7 @@
       let shifts = Array.from({ length: weapons.length }, () => 0)
       let pulses = Array.from({ length: weapons.length }, () => 0)
       let anyFuses = true
+      singleFuse = false
       let oldWeapons = weapons.slice()
       while (anyFuses) {
         anyFuses = false;
@@ -357,6 +353,7 @@
             weapons[i] = {...weapons[i]}
             weapons[i].level += 1
             anyFuses = true;
+            singleFuse = true;
             break;
           }
         }
@@ -541,10 +538,10 @@
     }
 
     let alreadyMerged = false
+    let singleFuse = false
     let weaponQueue = []
     // Handle arrow key presses
     function handleKey(e) {
-      debug = "button"
       let moved = false;
       alreadyMerged = false;
       switch (e.key) {
@@ -576,13 +573,25 @@
           for (let i = 0; i < weaponQueue.length; i++) {
             //Replace with code actually checking whether the two are fusable
             if (lastWeapon !== null && weaponQueue[i].type === lastWeapon.type) {
-              debug = "sighs in english"
               weapons.push(weaponQueue.splice(i,1)[0])
               pushOccured = true
             }
+
+            
           }
           if (!pushOccured) {weapons.push(weaponQueue.shift())}
-        weaponStack.push(cookStack()) 
+          while (weaponStack.length < 10 + swellDelay) {
+            weaponStack.push(weaponStack[weaponStack.length - 1].slice())
+          }
+          for (let frame = 0; frame < 10; frame++) {
+            weaponStack[weaponStack.length - 10 + frame].push(
+              new WeaponGraphic((9 - (10 - weapons.length)*frame/10)*(weaponWidth+weaponBuffer)+(weaponBuffer/2),0,
+              weapons[weapons.length - 1],
+              1,(frame+1)/10)
+            )
+          }
+
+        collapseAndStack()
       }
       spawnRandomTile();
     }
@@ -602,8 +611,8 @@
               }
             }
             [weapons[i], weapons[i+1]] = [weapons[i+1],weapons[i]]
-            //weaponStack.push(cookStack())
             collapseAndStack();
+            spawnRandomTile();
             break;
           } 
         }
