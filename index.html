@@ -340,9 +340,10 @@
       return [row,shifts,pulses];
     }
 
+    let swellDelay = 7
     // Move entire grid to the left
     function moveLeft() {
-      tileStack = Array.from({ length: 20 }, () => [])
+      tileStack = Array.from({ length: 10 + swellDelay }, () => [])
       for (let r = 0; r < size; r++) {
         // Reverse, merge, reverse back
         const full = compressAndShift(grid[r].slice());
@@ -350,21 +351,21 @@
         //Push animation BEFORE updating grid
         for (let c = 0; c < size; c++) {
           if (grid[r][c] != null) {
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 10; i++) 
               tileStack[i].push(new TileGraphic(c*88 - (i+1)*8.8*full[1][c],r*88,grid[r][c]))
             }
           }
-        }
+        
         grid[r] = full[0];
         //Degenerate no op if nothing merges. No worries, as next tile animation will overwrite.
         for (let c = 0; c < size; c++) {
           if (grid[r][c] != null) {
-            for (let i = 10; i < 20; i++) {
-              let s = 1
-              if (full[2][c] == 1) {
-                s += (5 - Math.abs(i - 15))/20
+            for (let i = swellDelay; i < 10+swellDelay; i++) {
+              if (i >= 10 || full[2][c] == 1) {
+                let s = 1
+                if (full[2][c] == 1) {s += (5 - Math.abs(i - swellDelay - 5))/20}
+                tileStack[i].push(new TileGraphic(c*88,r*88,grid[r][c],s))
               }
-              tileStack[i].push(new TileGraphic(c*88,r*88,grid[r][c],s))
             }
           }
         }
@@ -379,7 +380,7 @@
       tileStack.push(cookBoard())*/
     }
     function moveRight() {
-      tileStack = Array.from({ length: 20 }, () => []);
+      tileStack = Array.from({ length: 10+swellDelay }, () => []);
       for (let r = 0; r < size; r++) {
         // Reverse, merge, reverse back
         const reversed = grid[r].slice().reverse();
@@ -398,12 +399,12 @@
         grid[r] = full[0].reverse(); 
         for (let c = 0; c < size; c++) {
           if (grid[r][c] != null) {
-            for (let i = 10; i < 20; i++) {
-              let s = 1
-              if (full[2][3-c] == 1) {
-                s += (5 - Math.abs(i - 15))/20
+            for (let i = swellDelay; i < swellDelay + 10; i++) {
+              if (i >= 10 || full[2][3-c] == 1) {
+                let s = 1
+                if (full[2][3-c] == 1) {s += (5 - Math.abs(i - 5 - swellDelay))/20}
+                tileStack[i].push(new TileGraphic(c*88,r*88,grid[r][c],s))
               }
-              tileStack[i].push(new TileGraphic(c*88,r*88,grid[r][c],s))
             }
           }
         }
@@ -413,7 +414,7 @@
       tileStack.push(cookBoard())
     }
     function moveUp() {
-      tileStack = Array.from({ length: 20 }, () => []);
+      tileStack = Array.from({ length: 10+swellDelay }, () => []);
       for (let c = 0; c < size; c++) {
         // Build a column array
         let col = [];
@@ -437,14 +438,15 @@
         for (let r = 0; r < size; r++) {
           grid[r][c] = full[0][r];
         }
+
         for (let r = 0; r < size; r++) {
           if (grid[r][c] != null) {
-            for (let i = 10; i < 20; i++) {
-              let s = 1
-              if (full[2][r] == 1) {
-                s += (5 - Math.abs(i - 15))/20
+            for (let i = swellDelay; i < swellDelay + 10; i++) {
+              if (i >= 10 || full[2][r] == 1) {
+                let s = 1
+                if (full[2][r] == 1) {s += (5 - Math.abs(i - swellDelay - 5))/20}
+                tileStack[i].push(new TileGraphic(c*88,r*88,grid[r][c],s))
               }
-              tileStack[i].push(new TileGraphic(c*88,r*88,grid[r][c],s))
             }
           }
         }
@@ -452,7 +454,7 @@
       tileStack.push(cookBoard())
     }
     function moveDown() {
-      tileStack = Array.from({ length: 20 }, () => []);
+      tileStack = Array.from({ length: 10+swellDelay }, () => []);
       for (let c = 0; c < size; c++) {
         // Build a column array
         let col = [];
@@ -479,12 +481,12 @@
         }
         for (let r = 0; r < size; r++) {
           if (grid[r][c] != null) {
-            for (let i = 10; i < 20; i++) {
-              let s = 1
-              if (full[2][3-r] == 1) {
-                s += (5 - Math.abs(i - 15))/20
+            for (let i = swellDelay; i < swellDelay+10; i++) {
+              if (i >= 10 || full[2][3-r] == 1) {
+                let s = 1
+                if (full[2][3-r] == 1) {s += (5 - Math.abs(i - swellDelay - 5))/20}
+                tileStack[i].push(new TileGraphic(c*88,r*88,grid[r][c],s))
               }
-              tileStack[i].push(new TileGraphic(c*88,r*88,grid[r][c],s))
             }
           }
         }
