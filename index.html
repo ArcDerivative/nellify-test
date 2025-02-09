@@ -91,6 +91,7 @@
     let weaponCap = 10
 
     let currentWeapon = null
+    let currentIndex = -1
     let attackMode = false
   
     weaponStack.push(cookStack())
@@ -277,7 +278,7 @@
       });
       
       //Also if weapons are being animated, do this as well
-      if (!attackMode) {currentWeapon = null}
+      if (!attackMode) {currentWeapon = null; currentIndex = -1}
       if (mouseRow !== 4) {selectionLoopSeed = 0}
       for (let i = 0; i < weapons.length; i++) {
         weapons[i].selected = false
@@ -292,10 +293,10 @@
         for (let i = 0; i < weapons.length; i++) {
           if (mouseRow === 4) {
             //fire weapon
-            if (mouseCol > i - 0.5 && mouseCol <= i - 0.25) {weapons[i].selected = "merge left", weapons[i-1].selected = "merge right"}
-            else if (mouseCol > i - 0.25 && mouseCol <= i + 0.25) {weapons[i].selected = "fire"; currentWeapon = weapons[i]}
+            if (mouseCol > i - 0.5 && mouseCol <= i - 0.25) {weapons[i].selected = "merge left"; weapons[i-1].selected = "merge right"}
+            else if (mouseCol > i - 0.25 && mouseCol <= i + 0.25) {weapons[i].selected = "fire"; currentIndex = i; currentWeapon = weapons[i]}
             else if (mouseCol > i + 0.25 && mouseCol <= i + 0.5 && i < weapons.length - 1)
-              {weapons[i].selected = "merge right", weapons[i+1].selected = "merge left"}
+              {weapons[i].selected = "merge right"; weapons[i+1].selected = "merge left"}
           } else {weapons[i].selected = false}
         }
      }
@@ -340,6 +341,7 @@
     function compressAndShift(row) {
       //Returns the new row and all of its shifts
       alreadyMerged = false
+      
       let shifts = [0,0,0,0]
       let pulses = [0,0,0,0]
       
@@ -353,6 +355,7 @@
             row[j-1] = row[j]
             row[j] = null
             j -= 1
+            alreadyMoved = true
           }
           if (j > 0 && !alreadyMerged && row[j-1].type === row[j].type && row[j-1].level === row[j].level) {
             shifts[i] += 1
@@ -364,6 +367,7 @@
             row[j-1].level *= 2
             row[j] = null
             alreadyMerged = true
+            alreadyMoved = true
           }
         }
       }
@@ -372,11 +376,25 @@
 
     function collapseAndStack() {
       //Also takes care of the animations.
+      //Does not bat an eye if some weapons are null.
       let shifts = Array.from({ length: weapons.length }, () => 0)
       let pulses = Array.from({ length: weapons.length }, () => 0)
+      
+      let oldWeapons = weapons.slice()
+      //Simple shift if anything is null
+      weapons = weapons.filter(item => item !== null)
+      for (let i = 0; i < weapons.length; i++) {
+          if (weapons[i] === null) {
+            mousePosition.textContent = "found null"
+            throw"";
+            for (let j = i+1; j < weapons.length; j++) {shifts[j] += 1}
+            weapons.splice(i,1)
+            pulses.splice(i,1)
+            pulses.push(0)
+          }
+      }
       let anyFuses = true
       singleFuse = false
-      let oldWeapons = weapons.slice()
       while (anyFuses) {
         anyFuses = false;
         for (let i = 0; i < weapons.length - 1; i++) {
@@ -574,31 +592,38 @@
     }
 
     let alreadyMerged = false
+    let alreadyMoved = false
     let singleFuse = false
     let weaponQueue = []
     // Handle arrow key presses
     function handleKey(e) {
       let moved = false;
       alreadyMerged = false;
+      alreadyMoved = false;
+      if (attackMode){
+        attackMode = false;
+        handleSwipe(e);
+      }
+      if (tileStack.length > 15) {return}
       switch (e.key) {
+        case 'a':
+          weapons = [null,new Weapon("sword",1)]
+          collapseAndStack()
+          return;
         case 'ArrowLeft':
           moveLeft();
-          moved = true;
           break;
         case 'ArrowRight':
           moveRight();
-          moved = true;
           break;
         case 'ArrowUp':
           moveUp();
-          moved = true;
           break;
         case 'ArrowDown':
           moveDown();
-          moved = true;
           break;
       }
-      if (moved) {
+      if (alreadyMoved) {
         let lastWeapon = null
         while (weaponQueue.length > 0) {
           //weaponQueue.shift()
@@ -616,6 +641,8 @@
             
           }
           if (!pushOccured) {weapons.push(weaponQueue.shift())}
+          //Pushes a new weapon graphic to enter from the right
+          //starting on the EXACT FRAME that the tiles would start swelling.
           while (weaponStack.length < 10 + swellDelay) {
             weaponStack.push(weaponStack[weaponStack.length - 1].slice())
           }
@@ -653,11 +680,15 @@
           }
         }
         tileStack.push(cookBoard())
+      
+        weapons.splice(currentIndex,1)
+        collapseAndStack();
       }
       attackMode = false
       allowSelectWeapon = true
      }
      handleSwipe(e)
+     //Attempt swap
       if (mouseRow === 4) {
         for (let i = 0; i < weapons.length - 1; i++) {
           if (weapons[i].selected === "merge right") {
