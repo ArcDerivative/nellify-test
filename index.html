@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Helpful Debug 2048</title>
+  <title>Cute oscillations 2048</title>
   <style>
     body {
       font-family: sans-serif;
@@ -32,8 +32,8 @@
   </style>
 </head>
 <body>
-  <h1>Helpful Debug 2048</h1>
-  <p>In loving memory of Dungeonuity</p>
+  <h1>Cute oscillations 2048</h1>
+  <p>Appears to allow you to flip tiles (but doesn't)</p>
   <div id="board"></div>
   <div id="stack"></div>
   
@@ -83,8 +83,8 @@
     let weapons = []
     for (let i = 0; i < 4; i++) {
     weapons.push(new Weapon("sword", 1))
-    weapons.push(new Weapon("spear", 1))
-    weapons.push(new Weapon("two handed", 1))}
+    weapons.push(new Weapon("spear", 2))
+    weapons.push(new Weapon("two handed", 3))}
     let weaponStack = []
     let weaponWidth = 29
     let weaponBuffer = 5
@@ -205,6 +205,7 @@
     let selectionLoopSeed //Handles an oscillating animation for selected weapon.
     // Resets to zero any time nothing is selected or is allowed to be.
     function drawWeaponStack() {
+      selectionLoopSeed ++;
       //Board El is used for positioning even though stack El is the one holding the child items.
       const boardEl = document.getElementById('board');
       const stackEl = document.getElementById('stack');
@@ -214,14 +215,20 @@
          
           weapEl.style.position = "absolute";
           
-          if (weap.weapon.selected) {
+          if (weap.weapon.selected == "fire") {
             weapEl.style.left = `${boardEl.offsetLeft + weap.x - weaponBuffer}px`; 
             weapEl.style.top = `${boardEl.offsetTop + 88 * 4 + weap.y - weaponBuffer}px`;  
 
             weapEl.style.width = `${weaponWidth + weaponBuffer*2}px`;  // Set square width
             weapEl.style.height = `${weaponWidth + weaponBuffer*2}px`; // Set square height
           } else {
-            weapEl.style.left = `${boardEl.offsetLeft + weap.x}px`; 
+            let leftPush = 0
+            if (weap.weapon.selected == "merge left") {
+              leftPush = -weaponBuffer*(Math.sin(selectionLoopSeed/10) ** 2)
+            } else if (weap.weapon.selected == "merge right") {
+              leftPush = weaponBuffer*(Math.sin(selectionLoopSeed/10) ** 2)
+            } 
+            weapEl.style.left = `${boardEl.offsetLeft + weap.x + leftPush}px`; 
             weapEl.style.top = `${boardEl.offsetTop + 88 * 4 + weap.y}px`;  
             weapEl.style.width = `${weaponWidth}px`;  // Set square width
             weapEl.style.height = `${weaponWidth}px`; // Set square height
@@ -251,17 +258,22 @@
       if (weaponStack.length > 1) {
         weaponStack.shift()
       }
+      //Also if weapons are being animated, do this as well
+      if (mouseRow !== 4) {selectionLoopSeed = 0}
+      
       //Unconditional. [Sic].
-      if (mouseRow !== 4) {selectionLoopSeed = 0;
-      //Basically resets the weapon selection. TODO: move this outside the current if and to if animation is actually occuring.
-          for (let i = 0; i < weapons.length; i++) {
-            weapons[i].selected = false
-          }
+      for (let i = 0; i < weapons.length; i++) {
+        weapons[i].selected = false
       }
       //Actually implements weapon selection. TODO: move this to if only one frame on the weapon stack.
+      //fire
       for (let i = 0; i < weapons.length; i++) {
         if (mouseRow === 4) {
-          weapons[i].selected = (Math.round(mouseCol) === i)
+          //fire weapon
+          if (mouseCol > i - 0.5 && mouseCol <= i - 0.25) {weapons[i].selected = "merge left", weapons[i-1].selected = "merge right"}
+          else if (mouseCol > i - 0.25 && mouseCol <= i + 0.25) {weapons[i].selected = "fire"}
+          else if (mouseCol > i + 0.25 && mouseCol <= i + 0.5) {weapons[i].selected = "merge right", weapons[i+1].selected = "merge left"}
+          
         } else {weapons[i].selected = false}
       }
     }
