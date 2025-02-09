@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Partially animated 2048</title>
+  <title>Hovering 2048</title>
   <style>
     body {
       font-family: sans-serif;
@@ -32,8 +32,8 @@
   </style>
 </head>
 <body>
-  <h1>Partially animated 2048</h1>
-  <p>schlEEP!!</p>
+  <h1>Hovering 2048</h1>
+  <p>Hovering over a weapon shows its details (in the top left)</p>
   <div id="board"></div>
   <div id="stack"></div>
   
@@ -87,6 +87,9 @@
     let weaponBuffer = 5
     //Max weapons wieldable at once
     let weaponCap = 10
+
+    let currentWeapon = null
+    let attackMode = false
   
     weaponStack.push(cookStack())
     // Initialize the board with two tiles
@@ -194,10 +197,9 @@
       }
     }
     
-    //Also updates weapon selection, which is an instance field in on the weapon itself (NOT its graphic).
-    //
     let selectionLoopSeed //Handles an oscillating animation for selected weapon.
     // Resets to zero any time nothing is selected or is allowed to be.
+    //Also updates weapon selection, which is an instance field in on the weapon itself (NOT its graphic).
     function drawWeaponStack() {
       selectionLoopSeed ++;
       //Board El is used for positioning even though stack El is the one holding the child items.
@@ -251,12 +253,14 @@
       });
       
       //Also if weapons are being animated, do this as well
+      currentWeapon = null
       if (mouseRow !== 4) {selectionLoopSeed = 0}
       for (let i = 0; i < weapons.length; i++) {
         weapons[i].selected = false
       }
       if (weaponStack.length > 1) {
         allowSelectWeapon = false;
+        
         weaponStack.shift()
       } else {
         allowSelectWeapon = true;
@@ -264,7 +268,7 @@
           if (mouseRow === 4) {
             //fire weapon
             if (mouseCol > i - 0.5 && mouseCol <= i - 0.25) {weapons[i].selected = "merge left", weapons[i-1].selected = "merge right"}
-            else if (mouseCol > i - 0.25 && mouseCol <= i + 0.25) {weapons[i].selected = "fire"}
+            else if (mouseCol > i - 0.25 && mouseCol <= i + 0.25) {weapons[i].selected = "fire"; currentWeapon = weapons[i]}
             else if (mouseCol > i + 0.25 && mouseCol <= i + 0.5 && i < weapons.length - 1)
               {weapons[i].selected = "merge right", weapons[i+1].selected = "merge left"}
           } else {weapons[i].selected = false}
@@ -272,12 +276,19 @@
      }
     }
 
+    function printCurrentWeapon() {
+      if (currentWeapon === null) {
+        return "bare hands??"
+      }
+      return `level ${currentWeapon.level} ${currentWeapon.type}`
+    }
     function drawDebug() {
       const boardEl = document.getElementById('board');
       const dg = document.createElement('div');
       dg.style.position = "absolute"; 
       dg.style.top = `${boardEl.offsetTop + 88 * 4 + weaponWidth + weaponBuffer}px`; 
       dg.textContent = `GLOBAL DEBUG: ${debug}`;
+      
       boardEl.appendChild(dg);
     }
     //Cooks and returns a render of the board as reflected in the memory
@@ -659,7 +670,7 @@
       }
 
 
-      mousePosition.textContent = `X: ${relativeX}, Y: ${relativeY}, row: ${mouseRow} weap: ${mouseCol}`;
+      mousePosition.textContent = `current weapon: ${printCurrentWeapon()}`;
     });
     window.addEventListener('keydown', handleKey);
 
