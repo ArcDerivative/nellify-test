@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Attack mode 2048</title>
+  <title>Exhaustible Weapons</title>
   <style>
     body {
       font-family: sans-serif;
@@ -32,8 +32,8 @@
   </style>
 </head>
 <body>
-  <h1>Attack mode 2048</h1>
-  <p>Mipha would be proud</p>
+  <h1>Exhaustible Weapons</h1>
+  <p>取之不尽</p>
   <div id="board"></div>
   <div id="stack"></div>
   
@@ -382,11 +382,9 @@
       
       let oldWeapons = weapons.slice()
       //Simple shift if anything is null
-      weapons = weapons.filter(item => item !== null)
       for (let i = 0; i < weapons.length; i++) {
           if (weapons[i] === null) {
-            mousePosition.textContent = "found null"
-            throw"";
+            //weapons[i] = new Weapon("two handed", 5)
             for (let j = i+1; j < weapons.length; j++) {shifts[j] += 1}
             weapons.splice(i,1)
             pulses.splice(i,1)
@@ -417,6 +415,7 @@
         for (let i = 0; i < 10 + swellDelay; i++) {weaponStack.push([])}
         
         for (let weap = 0; weap < oldWeapons.length; weap++) {
+            if (oldWeapons[weap] === null) {continue;}
             for (let i = 0; i < 10; i++) {
               weaponStack[weaponStack.length - 10 - swellDelay + i].push(new WeaponGraphic(
                 (weap - shifts[weap]*(i+1)/10)*(weaponWidth+weaponBuffer)+(weaponBuffer/2),0,oldWeapons[weap]
@@ -606,10 +605,6 @@
       }
       if (tileStack.length > 15) {return}
       switch (e.key) {
-        case 'a':
-          weapons = [null,new Weapon("sword",1)]
-          collapseAndStack()
-          return;
         case 'ArrowLeft':
           moveLeft();
           break;
@@ -681,7 +676,7 @@
         }
         tileStack.push(cookBoard())
       
-        weapons.splice(currentIndex,1)
+        weapons[currentIndex] = null
         collapseAndStack();
       }
       attackMode = false
