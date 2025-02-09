@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Exhaustible Weapons</title>
+  <title>To the victors</title>
   <style>
     body {
       font-family: sans-serif;
@@ -32,8 +32,8 @@
   </style>
 </head>
 <body>
-  <h1>Exhaustible Weapons</h1>
-  <p>取之不尽</p>
+  <h1>To the victors</h1>
+  <p>go the spoils</p>
   <div id="board"></div>
   <div id="stack"></div>
   
@@ -42,9 +42,11 @@
     //convention e.g. for tile is that tile contains every relevant property for gameplay.
     //tileGraphic contains x, y, a tile, AND any associated transforms.
     class Tile {
-      constructor(type, level) {
+      constructor(type, level, maxHealth) {
         this.type = type;
         this.level = level;
+        this.maxHealth = maxHealth; this.health=maxHealth;
+        this.thisHit = 0; this.thisCombo = 0;
       }
     }
 
@@ -72,6 +74,8 @@
       }
     }
 
+    let animalsToWeapons = { "Bokoblin": "sword", "Moblin": "two handed", "Lizalfo": "spear"}
+
     let debug = "adenosine triphosphate"
     // Board size
     const size = 4;
@@ -83,7 +87,10 @@
     let tileStack = []
     tileStack.push(cookBoard())
 
-    let weapons = []
+    let weapons = [] /*
+    weapons.push(new Weapon("two handed", 7))
+    weapons.push(new Weapon("two handed", 3))
+    weapons.push(new Weapon("two handed", 5))*/
     let weaponStack = []
     let weaponWidth = 29
     let weaponBuffer = 5
@@ -95,6 +102,9 @@
     let attackMode = false
   
     weaponStack.push(cookStack())
+
+    //Q stands for cumulative. Presumably, c will stand for combo and h for hit.
+    let qKills = 0
     // Initialize the board with two tiles
     function init() {
       spawnRandomTile();
@@ -124,7 +134,8 @@
       }
       if (emptyPositions.length > 0) {
         const { r, c } = emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
-        grid[r][c] = new Tile (["Bokoblin","Moblin","Lizalfo"][Math.floor(Math.random() * 3)], 1);
+        //health is 10 for now
+        grid[r][c] = new Tile (["Bokoblin","Moblin","Lizalfo"][Math.floor(Math.random() * 3)], 1, 10);
         //Assumes something is actually taking place on screen.
         while (tileStack.length < 20) {
           tileStack.push(tileStack[tileStack.length - 1].slice())
@@ -212,7 +223,7 @@
             default:
               tileEl.style.background = "#000000";break
           }
-          tileEl.textContent = `${tile.tile.level}`;
+          tileEl.textContent = `lv. ${tile.tile.level} (${tile.tile.health}/${tile.tile.maxHealth})`;
           
           boardEl.appendChild(tileEl);
       });
@@ -361,10 +372,14 @@
             shifts[i] += 1
             pulses[j-1] = 1
             if (weapons.length + weaponQueue.length < weaponCap) {
-              weaponQueue.push(new Weapon({ "Bokoblin": "sword", "Moblin": "two handed", "Lizalfo": "spear"}[row[j].type],1))
+              weaponQueue.push(new Weapon(animalsToWeapons[row[j].type],1))
             }
+            let nextHealth = row[j].health + row[j-1].health
+            let nextMax = row[j].maxHealth + row[j-1].maxHealth
             row[j-1] = {...row[j]}
-            row[j-1].level *= 2
+            row[j-1].level += 1
+            row[j-1].health = nextHealth
+            row[j-1].maxHealth = nextMax
             row[j] = null
             alreadyMerged = true
             alreadyMoved = true
@@ -384,7 +399,6 @@
       //Simple shift if anything is null
       for (let i = 0; i < weapons.length; i++) {
           if (weapons[i] === null) {
-            //weapons[i] = new Weapon("two handed", 5)
             for (let j = i+1; j < weapons.length; j++) {shifts[j] += 1}
             weapons.splice(i,1)
             pulses.splice(i,1)
@@ -594,6 +608,7 @@
     let alreadyMoved = false
     let singleFuse = false
     let weaponQueue = []
+    let killQueue = []
     // Handle arrow key presses
     function handleKey(e) {
       let moved = false;
@@ -619,7 +634,13 @@
           break;
       }
       if (alreadyMoved) {
-        let lastWeapon = null
+        introduceQueuedWeapons();
+        spawnRandomTile();
+      } 
+    }
+
+  function introduceQueuedWeapons() {
+    let lastWeapon = null
         while (weaponQueue.length > 0) {
           //weaponQueue.shift()
           if (weapons.length > 0) {
@@ -632,8 +653,6 @@
               weapons.push(weaponQueue.splice(i,1)[0])
               pushOccured = true
             }
-
-            
           }
           if (!pushOccured) {weapons.push(weaponQueue.shift())}
           //Pushes a new weapon graphic to enter from the right
@@ -648,13 +667,9 @@
               1,(frame+1)/10)
             )
           }
-
-        collapseAndStack()
-      }
-      spawnRandomTile();
-    }
-  }
-
+        
+  }collapseAndStack()
+}
     function handleClick(e) {
      if(!attackMode) {
       if (currentWeapon !== null) {
@@ -669,15 +684,49 @@
         //Evree time a repoolikan is in office
         //day one they pass the nasty mothafaka act
         //which kill's every living thing on ___'s green earth
+        killQueue = []
         for (let i = 0; i < 4; i++) {
           for (let j = 0; j < 4; j++) {
-            if (targetTiles[i][j]) grid[i][j] = null
+            if (targetTiles[i][j]) {
+              if (grid[i][j] !== null){
+                //TODO: Actually deal damage according to the weapon level
+                //Accumulate this damage to this hit and this combo
+                grid[i][j] = {...grid[i][j]}
+                grid[i][j].health -= 500
+                if (grid[i][j].health <= 0) {killQueue.push(grid[i][j].type); grid[i][j] = null}
+              }
+            }
           }
         }
+
+        //Quick make sure board is non empty
         tileStack.push(cookBoard())
-      
+        let empty = true
+        for (let r = 0; r < 4; r++) for (c = 0; c < 4; c++) if (grid[r][c] !== null) empty = false
+        if (empty) spawnRandomTile()
+        //Iterate through kill queue.
         weapons[currentIndex] = null
         collapseAndStack();
+        weaponQueue = []
+        for (let kill = 0; kill < killQueue.length; kill++) {
+          let buffType = animalsToWeapons[killQueue[kill]]
+          let lowestRank = Math.min(weapons.filter(weap => weap.type === buffType).map(weap => weap.level))
+          //If NO weapons are of the buffType, queue a new one at the beginning.
+          if (lowestRank === 0 || lowestRank === Infinity) {
+            if (weapons.length + weaponQueue.length < weaponCap) {
+              weaponQueue.push(new Weapon(buffType,1))
+            }
+          } else {
+            for (let weap = 0; weap < weapons.length; weap++) {
+              if (weapons[weap].type === buffType && weapons[weap].level === lowestRank) {
+                //TODO: animate
+                weapons[weap].level += 1
+                break;
+              }
+            }
+          }
+        }
+        introduceQueuedWeapons()
       }
       attackMode = false
       allowSelectWeapon = true
