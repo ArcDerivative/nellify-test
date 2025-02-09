@@ -66,8 +66,9 @@
     }
 
     class WeaponGraphic {
-      constructor(x, y, weapon) {
+      constructor(x, y, weapon, size=1) {
         this.x = x; this.y = y; this.weapon = weapon;
+        this.size=size
       }
     }
 
@@ -81,10 +82,11 @@
     tileStack.push(cookBoard())
 
     let weapons = []
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 3; i++) {
     weapons.push(new Weapon("sword", 1))
-    weapons.push(new Weapon("spear", 2))
-    weapons.push(new Weapon("two handed", 3))}
+    weapons.push(new Weapon("spear", 1))
+    //weapons.push(new Weapon("two handed", 1))
+    }
     let weaponStack = []
     let weaponWidth = 29
     let weaponBuffer = 5
@@ -92,9 +94,6 @@
     let weaponCap = 10
   
     weaponStack.push(cookStack())
-
-    
-
     // Initialize the board with two tiles
     function init() {
       spawnRandomTile();
@@ -228,10 +227,10 @@
             } else if (weap.weapon.selected == "merge right") {
               leftPush = weaponBuffer*(Math.sin(selectionLoopSeed/10) ** 2)
             } 
-            weapEl.style.left = `${boardEl.offsetLeft + weap.x + leftPush}px`; 
-            weapEl.style.top = `${boardEl.offsetTop + 88 * 4 + weap.y}px`;  
-            weapEl.style.width = `${weaponWidth}px`;  // Set square width
-            weapEl.style.height = `${weaponWidth}px`; // Set square height
+            weapEl.style.left = `${boardEl.offsetLeft + weap.x + leftPush + (1-weap.size)*(weaponWidth/2)}px`; 
+            weapEl.style.top = `${boardEl.offsetTop + 88 * 4 + weap.y + (1-weap.size)*(weaponWidth/2)}px`;  
+            weapEl.style.width = `${weaponWidth * weap.size}px`;  // Set square width
+            weapEl.style.height = `${weaponWidth * weap.size}px`; // Set square height
           }
 
           // Center text inside the square
@@ -340,6 +339,53 @@
       return [row,shifts,pulses];
     }
 
+    function collapseAndStack() {
+      //Also takes care of the animations.
+      let shifts = Array.from({ length: weapons.length }, () => 0)
+      let pulses = Array.from({ length: weapons.length }, () => 0)
+      let anyFuses = true
+      let oldWeapons = weapons.slice()
+      while (anyFuses) {
+        anyFuses = false;
+        for (let i = 0; i < weapons.length - 1; i++) {
+          if (weapons[i].type == weapons[i+1].type && weapons[i].level == weapons[i+1].level) {
+            for (let j = i+1; j < weapons.length; j++) {shifts[j] += 1}
+            pulses[i] = 1
+            weapons.splice(i+1,1)
+            pulses.splice(i+1,1)
+            pulses.push(0)
+            weapons[i] = {...weapons[i]}
+            weapons[i].level += 1
+            anyFuses = true;
+            break;
+          }
+        }
+      }
+      if (weapons.length < oldWeapons.length) {
+        //Intended to be a degenerate no-op
+        for (let i = 0; i < 10 + swellDelay; i++) {weaponStack.push([])}
+        
+        for (let weap = 0; weap < oldWeapons.length; weap++) {
+            for (let i = 0; i < 10; i++) {
+              weaponStack[weaponStack.length - 10 - swellDelay + i].push(new WeaponGraphic(
+                (weap - shifts[weap]*(i+1)/10)*(weaponWidth+weaponBuffer)+(weaponBuffer/2),0,oldWeapons[weap]
+              ))
+            }
+          }
+        for (let weap = 0; weap < weapons.length; weap++) {
+            for (let i = 0; i < 10; i++) {
+              if (i >= (10 - swellDelay) || pulses[weap] == 1) {
+              let s = 1
+                if (pulses[weap] == 1) {s += (5 - Math.abs(i - 5))/20}
+                weaponStack[weaponStack.length - 10 + i].push(new WeaponGraphic(
+                  weap*(weaponWidth+weaponBuffer)+(weaponBuffer/2),0,weapons[weap],s)
+                )
+              }
+            }
+          }
+      }
+      weaponStack.push(cookStack())
+    }
     let swellDelay = 7
     // Move entire grid to the left
     function moveLeft() {
@@ -556,7 +602,8 @@
               }
             }
             [weapons[i], weapons[i+1]] = [weapons[i+1],weapons[i]]
-            weaponStack.push(cookStack())
+            //weaponStack.push(cookStack())
+            collapseAndStack();
             break;
           } 
         }
