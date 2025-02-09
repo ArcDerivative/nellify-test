@@ -265,6 +265,7 @@
         
         weaponStack.shift()
       } else {
+        //In theory is redundant
         if (!attackMode) {allowSelectWeapon = true}
         for (let i = 0; i < weapons.length; i++) {
           if (mouseRow === 4) {
@@ -616,12 +617,13 @@
         attackMode = true
         allowSelectWeapon = false
       }
-     }
-     if (attackMode) {
+     } else {
       if (mouseRow == -1) {
         attackMode = false
+        allowSelectWeapon = true
       }
      }
+     handleSwipe(e)
       if (mouseRow === 4) {
         for (let i = 0; i < weapons.length - 1; i++) {
           if (weapons[i].selected === "merge right") {
@@ -641,28 +643,11 @@
           } 
         }
       }
+      
     }
-    const mousePosition = document.createElement("div");
-    mousePosition.style.position = "fixed";
-    mousePosition.style.top = "10px";
-    mousePosition.style.left = "10px";
-    mousePosition.style.background = "rgba(0,0,0,0.7)";
-    mousePosition.style.color = "white";
-    mousePosition.style.padding = "5px";
-    mousePosition.style.fontSize = "14px";
-    document.body.appendChild(mousePosition);
-
-    const boardEl = document.getElementById('board'); // Ensure the board element exists
-
-    let relativeX
-    let relativeY
-    let mouseRow
-    let mouseCol
-    //If for some reason you like to click outside of the grid when doing spear attacks or smth
-    let allowSelectWeapon = true
-    document.addEventListener("mousemove", (event) => {
+    
+    function handleSwipe(event) {
       const boardRect = boardEl.getBoundingClientRect(); // Get board position
-
       // Calculate relative position
       relativeX = event.clientX - boardRect.left;
       relativeY = event.clientY - boardRect.top;
@@ -688,10 +673,27 @@
           mouseCol = (relativeX - 40) / 88
         }
       }
-
-
       mousePosition.textContent = `row: ${mouseRow}, col: ${mouseCol} current weapon: ${printCurrentWeapon()}`;
-    });
+    }
+    const mousePosition = document.createElement("div");
+    mousePosition.style.position = "fixed";
+    mousePosition.style.top = "10px";
+    mousePosition.style.left = "10px";
+    mousePosition.style.background = "rgba(0,0,0,0.7)";
+    mousePosition.style.color = "white";
+    mousePosition.style.padding = "5px";
+    mousePosition.style.fontSize = "14px";
+    document.body.appendChild(mousePosition);
+
+    const boardEl = document.getElementById('board'); // Ensure the board element exists
+
+    let relativeX
+    let relativeY
+    let mouseRow
+    let mouseCol
+    //If for some reason you like to click outside of the grid when doing spear attacks or smth
+    let allowSelectWeapon = true
+    document.addEventListener("mousemove", handleSwipe);
     window.addEventListener('keydown', handleKey);
 
     let mouseDownDetected = false;
