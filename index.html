@@ -77,6 +77,8 @@
     const size = 4;
     // 2D array representing the grid
     let grid = Array.from({ length: size }, () => Array(size).fill(null));
+
+    let targetTiles = [[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]]
     //tileStack is a list of lists of tile graphics
     let tileStack = []
     tileStack.push(cookBoard())
@@ -139,6 +141,7 @@
     function drawAll() {
       drawBoard();
       drawTileStack();
+      drawOverlay();
       drawWeaponStack();
       drawDebug();
     }
@@ -154,6 +157,25 @@
           const cell = document.createElement('div');
           cell.classList.add('cell');
           boardEl.appendChild(cell);
+        }
+      }
+    }
+    function drawOverlay() {
+      const boardEl = document.getElementById('board');
+      //Cascading deep delete of everything on the 'board' element, which seems almost like a directory or grouping.
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const tileEl = document.createElement('div');
+
+          tileEl.style.position = "absolute";
+          tileEl.style.left = `${boardEl.offsetLeft-4 + c*88}px`; 
+          tileEl.style.top = `${boardEl.offsetTop-4 + r*88}px`;  
+          
+          tileEl.style.width = `88px`;  // Set square width
+          tileEl.style.height = `88px`;
+          
+          if (targetTiles[r][c]) tileEl.style.background ="rgba(255, 0, 0, 0.5)";
+          boardEl.appendChild(tileEl);
         }
       }
     }
@@ -255,7 +277,7 @@
       });
       
       //Also if weapons are being animated, do this as well
-      currentWeapon = null
+      if (!attackMode) {currentWeapon = null}
       if (mouseRow !== 4) {selectionLoopSeed = 0}
       for (let i = 0; i < weapons.length; i++) {
         weapons[i].selected = false
@@ -621,7 +643,19 @@
       if (mouseRow == -1) {
         attackMode = false
         allowSelectWeapon = true
+      } else {
+        //Evree time a repoolikan is in office
+        //day one they pass the nasty mothafaka act
+        //which kill's every living thing on ___'s green earth
+        for (let i = 0; i < 4; i++) {
+          for (let j = 0; j < 4; j++) {
+            if (targetTiles[i][j]) grid[i][j] = null
+          }
+        }
+        tileStack.push(cookBoard())
       }
+      attackMode = false
+      allowSelectWeapon = true
      }
      handleSwipe(e)
       if (mouseRow === 4) {
@@ -647,6 +681,7 @@
     }
     
     function handleSwipe(event) {
+      targetTiles = [[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]]
       const boardRect = boardEl.getBoundingClientRect(); // Get board position
       // Calculate relative position
       relativeX = event.clientX - boardRect.left;
@@ -671,6 +706,34 @@
         } else {
           mouseRow = (relativeY - 40) / 88
           mouseCol = (relativeX - 40) / 88
+          if (attackMode) {
+            if ("spear" === currentWeapon.type) {
+              //Vertical select
+              if (Math.abs(1.5-mouseRow) > Math.abs(1.5-mouseCol)){
+                for (let i = 0; i < 4; i++)
+                  targetTiles[i][Math.round(mouseCol)] = true
+              } else {
+                targetTiles[Math.round(mouseRow)] = [true, true, true, true]
+              }
+            } else if ("sword" === currentWeapon.type) {
+              //Vertical select
+              let row = Math.max(1,Math.min(Math.round(mouseRow),3))
+              let col = Math.max(1,Math.min(Math.round(mouseCol),3))
+              targetTiles[row-1][col-1] = true
+              targetTiles[row-1][col] = true
+              targetTiles[row][col-1] = true
+              targetTiles[row][col] = true
+            } else if ("two handed" === currentWeapon.type) {
+              //Vertical select
+              let row = Math.max(0,Math.min(Math.round(mouseRow),3))
+              let col = Math.max(0,Math.min(Math.round(mouseCol),3))
+              targetTiles[row][col] = true
+              if (row > 0) targetTiles[row-1][col] = true
+              if (row < 3) targetTiles[row+1][col] = true
+              if (col > 0) targetTiles[row][col-1] = true
+              if (col < 3) targetTiles[row][col+1] = true
+            }
+          }
         }
       }
       mousePosition.textContent = `row: ${mouseRow}, col: ${mouseCol} current weapon: ${printCurrentWeapon()}`;
