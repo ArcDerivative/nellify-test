@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>To the victors</title>
+  <title>Oops I did it again</title>
   <style>
     body {
       font-family: sans-serif;
@@ -32,8 +32,8 @@
   </style>
 </head>
 <body>
-  <h1>To the victors</h1>
-  <p>go the spoils</p>
+  <h1>Oops I did it again</h1>
+  <p>I made it too hard</p>
   <div id="board"></div>
   <div id="stack"></div>
   
@@ -135,7 +135,7 @@
       if (emptyPositions.length > 0) {
         const { r, c } = emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
         //health is 10 for now
-        grid[r][c] = new Tile (["Bokoblin","Moblin","Lizalfo"][Math.floor(Math.random() * 3)], 1, 10);
+        grid[r][c] = new Tile (["Bokoblin","Moblin","Lizalfo"][Math.floor(Math.random() * 3)], 1, 1+qKills);
         //Assumes something is actually taking place on screen.
         while (tileStack.length < 20) {
           tileStack.push(tileStack[tileStack.length - 1].slice())
@@ -692,8 +692,8 @@
                 //TODO: Actually deal damage according to the weapon level
                 //Accumulate this damage to this hit and this combo
                 grid[i][j] = {...grid[i][j]}
-                grid[i][j].health -= 500
-                if (grid[i][j].health <= 0) {killQueue.push(grid[i][j].type); grid[i][j] = null}
+                grid[i][j].health -= currentWeapon.level
+                if (grid[i][j].health <= 0) {killQueue.push(grid[i][j].type); grid[i][j] = null; qKills++}
               }
             }
           }
