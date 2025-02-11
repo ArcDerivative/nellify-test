@@ -87,10 +87,10 @@
     let tileStack = []
     tileStack.push(cookBoard())
 
-    let weapons = [] /*
-    weapons.push(new Weapon("two handed", 7))
-    weapons.push(new Weapon("two handed", 3))
-    weapons.push(new Weapon("two handed", 5))*/
+    let weapons = []
+    //weapons.push(new Weapon("two handed", 1))
+    //weapons.push(new Weapon("two handed", 2))
+    //weapons.push(new Weapon("two handed", 1))
     let weaponStack = []
     let weaponWidth = 29
     let weaponBuffer = 5
@@ -248,10 +248,9 @@
           weapEl.style.position = "absolute";
           
           //We really should have separate code for size modifier. Will add if any problems arise.
+          let actualSize = weap.size
           if (weap.weapon.selected == "fire") {
-            weap.size = 1.2
-          } else if (weap.size == 1.2) {
-            weap.size = 1
+            actualSize *= 1.2
           }
           
             let leftPush = 0
@@ -260,10 +259,10 @@
             } else if (weap.weapon.selected == "merge right") {
               leftPush = weaponBuffer*(Math.sin(selectionLoopSeed/10) ** 2)
             } 
-            weapEl.style.left = `${boardEl.offsetLeft + weap.x + leftPush + (1-weap.size)*(weaponWidth/2) + (1-weap.shear)*weaponWidth}px`; 
-            weapEl.style.top = `${boardEl.offsetTop + 88 * 4 + weap.y + (1-weap.size)*(weaponWidth/2)}px`;  
-            weapEl.style.width = `${weaponWidth * weap.size * weap.shear}px`;  // Set square width
-            weapEl.style.height = `${weaponWidth * weap.size}px`; // Set square height
+            weapEl.style.left = `${boardEl.offsetLeft + weap.x + leftPush + (1-actualSize)*(weaponWidth/2) + (1-weap.shear)*weaponWidth}px`; 
+            weapEl.style.top = `${boardEl.offsetTop + 88 * 4 + weap.y + (1-actualSize)*(weaponWidth/2)}px`;  
+            weapEl.style.width = `${weaponWidth * actualSize * weap.shear}px`;  // Set square width
+            weapEl.style.height = `${weaponWidth * actualSize}px`; // Set square height
           
 
           // Center text inside the square
@@ -440,10 +439,10 @@
             for (let i = 0; i < 10; i++) {
               if (i >= (10 - swellDelay) || pulses[weap] == 1) {
               let s = 1
-                if (pulses[weap] == 1) {s += (5 - Math.abs(i - 5))/20}
-                weaponStack[weaponStack.length - 10 + i].push(new WeaponGraphic(
-                  weap*(weaponWidth+weaponBuffer)+(weaponBuffer/2),0,weapons[weap],s)
-                )
+              if (pulses[weap] == 1) {s += (5 - Math.abs(i - 5))/20}
+              weaponStack[weaponStack.length - 10 + i].push(new WeaponGraphic(
+                weap*(weaponWidth+weaponBuffer)+(weaponBuffer/2),0,weapons[weap],s)
+              )
               }
             }
           }
@@ -668,7 +667,8 @@
             )
           }
         
-  }collapseAndStack()
+  }
+  collapseAndStack()
 }
     function handleClick(e) {
      if(!attackMode) {
