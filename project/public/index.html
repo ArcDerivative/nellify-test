@@ -1042,7 +1042,7 @@
     let mouseDownDetected = false;
     document.addEventListener('mousedown', () => {if (!mouseDownDetected) {handleClick(event);}; mouseDownDetected = true;}); 
     document.addEventListener('mouseup', (event) => {mouseDownDetected = false;});
-    document.addEventListener("touchmove", function(event) {event.preventDefault();}, { passive: false });
+    document.addEventListener("touchmove", (event) => {event.preventDefault();}, { passive: false });
     window.addEventListener('resize', () => {
         drawAll();
     });
