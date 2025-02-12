@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>It's animated</title>
+  <title>爆杀</title>
   <style>
     body {
       font-family: sans-serif;
@@ -32,8 +32,8 @@
   </style>
 </head>
 <body>
-  <h1>It's animated</h1>
-  <p>a a a a b b a a</p>
+  <h1>爆杀</h1>
+  <p>Explosive kill!</p>
   <div id="board"></div>
   <div id="stack"></div>
   
@@ -193,8 +193,9 @@
     // Redraw the board in the DOM
     function drawAll() {
       drawBoard();
-      drawTileStack();
       drawOverlay();
+      drawTileStack();
+      
       drawWeaponStack();
       drawBombStack();
       drawDebug();
@@ -203,7 +204,7 @@
       //Vestigial function that now only draws the outline of the board.
       const boardEl = document.getElementById('board');
       if (attackMode) {document.body.style.background = "#FFb0b0"}
-      else {document.body.style.background = "white"}
+      else {document.body.style.background = "grey"}
       //Cascading deep delete of everything on the 'board' element, which seems almost like a directory or grouping.
       boardEl.innerHTML = '';
       for (let r = 0; r < size; r++) {
@@ -1007,6 +1008,7 @@
     let mouseDownDetected = false;
     document.addEventListener('mousedown', () => {if (!mouseDownDetected) {handleClick(event);}; mouseDownDetected = true;}); 
     document.addEventListener('mouseup', (event) => {mouseDownDetected = false;});
+    document.addEventListener("touchmove", function(event) {event.preventDefault();}, { passive: false });
     init();
   </script>
 </body>
