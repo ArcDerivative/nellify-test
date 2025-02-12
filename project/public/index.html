@@ -25,7 +25,7 @@
       align-items: center;  /* Center vertically */
     }
 
-#board {
+#guard {
   position: relative; /* Keeps the board centered even when resizing */
 
   /* Define minimum margins */
@@ -46,6 +46,7 @@
   </style>
 </head>
 <body>
+  <div id="guard"></div>
   <div id="board"></div>
   <div id="stack"></div>
   
@@ -203,28 +204,17 @@
     }
 
     // Reset board and scaling, namely kills the board and gives rise to it in the guard
-    function minimalReset() { /*
+    function minimalReset() { 
 
       const guardEl = document.getElementById('guard');
-      //Kills the guard's only child
-      while (guardEl.firstChild) {
-          guardEl.removeChild(guardEl.firstChild);
-      }
-
-      const boardEl = document.createElement('div')
+      const boardEl = document.getElementById('board')
+      boardEl.innerHTML = ''
       boardEl.style.position = "fixed";
       boardEl.style.left = `${guardEl.offsetLeft}px`; 
       boardEl.style.top = `${guardEl.offsetTop + (guardEl.clientHeight - guardEl.clientWidth)/2}px`;  
       //SIC
       boardEl.style.height = `${guardEl.clientWidth}px`;
       boardEl.style.width = `${guardEl.clientWidth}px`;
-
-      guardEl.appendChild(boardEl); */
-
-      const boardEl = document.getElementById('board');
-      while (boardEl.firstChild) {
-          boardEl.removeChild(boardEl.firstChild);
-      }
 
       //document.getElementById('board').style.backgroundColor = 'red';
       if (attackMode) {document.body.style.background = "#FFb0b0"}
