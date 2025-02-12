@@ -163,6 +163,7 @@
       if (emptyPositions.length > 0) {
         const { r, c } = emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
         //health is 10 for now
+        //health should be 1 + qKills
         grid[r][c] = new Tile (["Bokoblin","Moblin","Lizalfo"][Math.floor(Math.random() * 3)], 1, 1+qKills);
         //Assumes something is actually taking place on screen.
         while (tileStack.length < 20) {
@@ -283,23 +284,31 @@ tileEl.style.backgroundColor = "transparent";
         extraImage.backgroundColor = "transparent";
 
         tileEl.appendChild(extraImage);
-        function health(numeral, color) {
+        function health(numeral, brightness, alpha, path) {
+          if (numeral <= 0) {return}
           const hBar = document.createElement('div');
           hBar.style.position = "absolute"
           hBar.style.left = tileEl.offsetLeft
           hBar.style.top = tileEl.offsetTop
           hBar.style.width = "100%";   // Adjust to control scale relative to tileEl
           hBar.style.height = "100%";
-          hBar.style.filter = `brightness(${color}%)`; //Degenerate no op  
+          hBar.style.filter = `brightness(${brightness}%)`;
+          hBar.style.opacity = `${alpha}`;
 
-          hBar.style.backgroundImage = `url('Animations/Hearts/Copydest/${numeral}.png')`;
+          hBar.style.backgroundImage = `url('Animations/Hearts/${path}/${numeral}.png')`;
           hBar.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
           hBar.backgroundColor = "transparent";
           tileEl.appendChild(hBar);}
         
-        health(20,25)
-        health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100)
-        
+        health(20,25,100,"white")
+        if (flashSeed > 0 && tile.tile.thisHit > 0) {
+          health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,flashSeed/10,"red")
+          health(Math.ceil((tile.tile.health - tile.tile.thisHit)/tile.tile.maxHealth * 20),100,1,"red")
+          health(Math.ceil((tile.tile.health)/tile.tile.maxHealth * 20),100,flashSeed/10,"white")
+          health(Math.ceil((tile.tile.health - tile.tile.thisHit)/tile.tile.maxHealth * 20) - 1,100,1,"red")
+        } else {
+          health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,100,"red")
+        }
         
         // Append to the board element
         boardEl.appendChild(tileEl);
@@ -310,10 +319,61 @@ tileEl.style.backgroundColor = "transparent";
         tileStack.shift()
       }
       swaySeed += 1
+
+      if (flashSeed == 1) {
+        killQueue = []
+        for (let i = 0; i < 4; i++) {
+          for (let j = 0; j < 4; j++) 
+              if (grid[i][j] !== null && grid[i][j].thisHit > 0){
+                //grid[i][j] = {...grid[i][j]}
+                grid[i][j].health -= grid[i][j].thisHit
+                grid[i][j].thisHit = 0
+                if (grid[i][j].health <= 0) {
+                  killQueue.push(grid[i][j].type); grid[i][j] = null; qKills++
+                }
+                //TODO: This part is actually taken care of by the RENDERER. If done well, this even allows implicit combos.
+                //grid[i][j].health -= damage
+                //if (grid[i][j].health <= 0) {}
+            }
+        }}
+      if (flashSeed == 0) {
+        if (killQueue.length > 0) {
+        //Quick make sure board is non empty
+            tileStack.push(cookBoard())
+            let empty = true
+            for (let r = 0; r < 4; r++) for (c = 0; c < 4; c++) if (grid[r][c] !== null) empty = false
+            if (empty) spawnRandomTile()
+            //Iterate through kill queue.
+            weaponQueue = []
+            for (let kill = 0; kill < killQueue.length; kill++) {
+              let buffType = animalsToWeapons[killQueue[kill]]
+              let lowestRank = Math.min(weapons.filter(weap => weap.type === buffType).map(weap => weap.level))
+              //If NO weapons are of the buffType, queue a new one at the beginning.
+              if (lowestRank === 0 || lowestRank === Infinity) {
+                if (weapons.length + weaponQueue.length < weaponCap) {
+                  weaponQueue.push(new Weapon(buffType,1))
+                }
+              } else {
+                for (let weap = 0; weap < weapons.length; weap++) {
+                  if (weapons[weap].type === buffType && weapons[weap].level === lowestRank) {
+                    //TODO: animate
+                    weapons[weap].level += 1
+                    break;
+                  }
+                }
+              }
+            }
+            introduceQueuedWeapons()
+          killQueue = []
+        }
+      } else {
+        flashSeed -= 1
+      }
     }
     
     let selectionLoopSeed //Handles an oscillating animation for selected weapon.
     let swaySeed = 0
+    let flashSeed = 0 //10 means an attack just happened
     // Resets to zero any time nothing is selected or is allowed to be.
     //Also updates weapon selection, which is an instance field in on the weapon itself (NOT its graphic).
     function drawWeaponStack() {
@@ -764,49 +824,32 @@ tileEl.style.backgroundColor = "transparent";
         //Evree time a repoolikan is in office
         //day one they pass the nasty mothafaka act
         //which kill's every living thing on ___'s green earth
-        killQueue = []
+        
         for (let i = 0; i < 4; i++) {
           for (let j = 0; j < 4; j++) {
             if (targetTiles[i][j]) {
               if (grid[i][j] !== null){
                 //TODO: Actually deal damage according to the weapon level
                 //Accumulate this damage to this hit and this combo
-                grid[i][j] = {...grid[i][j]}
-                grid[i][j].health -= currentWeapon.level
-                if (grid[i][j].health <= 0) {killQueue.push(grid[i][j].type); grid[i][j] = null; qKills++}
+                flashSeed = 10
+                //grid[i][j] = {...grid[i][j]}
+                let damage = currentWeapon.level
+                //damage = 5
+                //In theory, health cannot go negative
+                if (grid[i][j].health - (damage + grid[i][j].thisHit) < 0) {
+                  damage = grid[i][j].health - grid[i][j].thisHit
+                }
+                grid[i][j].thisHit += damage
+                //TODO: This part is actually taken care of by the RENDERER. If done well, this even allows implicit combos.
+                //grid[i][j].health -= damage
+                //if (grid[i][j].health <= 0) {killQueue.push(grid[i][j].type); grid[i][j] = null; qKills++}
               }
             }
           }
         }
-
-        //Quick make sure board is non empty
-        tileStack.push(cookBoard())
-        let empty = true
-        for (let r = 0; r < 4; r++) for (c = 0; c < 4; c++) if (grid[r][c] !== null) empty = false
-        if (empty) spawnRandomTile()
-        //Iterate through kill queue.
         weapons[currentIndex] = null
         collapseAndStack();
-        weaponQueue = []
-        for (let kill = 0; kill < killQueue.length; kill++) {
-          let buffType = animalsToWeapons[killQueue[kill]]
-          let lowestRank = Math.min(weapons.filter(weap => weap.type === buffType).map(weap => weap.level))
-          //If NO weapons are of the buffType, queue a new one at the beginning.
-          if (lowestRank === 0 || lowestRank === Infinity) {
-            if (weapons.length + weaponQueue.length < weaponCap) {
-              weaponQueue.push(new Weapon(buffType,1))
-            }
-          } else {
-            for (let weap = 0; weap < weapons.length; weap++) {
-              if (weapons[weap].type === buffType && weapons[weap].level === lowestRank) {
-                //TODO: animate
-                weapons[weap].level += 1
-                break;
-              }
-            }
-          }
-        }
-        introduceQueuedWeapons()
+        
       }
       attackMode = false
       allowSelectWeapon = true
