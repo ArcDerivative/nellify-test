@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Oops I did it again</title>
+  <title>It's animated</title>
   <style>
     body {
       font-family: sans-serif;
@@ -32,8 +32,8 @@
   </style>
 </head>
 <body>
-  <h1>Oops I did it again</h1>
-  <p>I made it too hard</p>
+  <h1>It's animated</h1>
+  <p>a a a a b b a a</p>
   <div id="board"></div>
   <div id="stack"></div>
   
@@ -130,8 +130,12 @@
       cacheAnimal("Animations/Animals/Bokoblin/")
       cacheAnimal("Animations/Animals/Moblin/")
       cacheAnimal("Animations/Animals/Lizalfo/")
+      cacheAnimal("Animations/Animal Masks/Bokoblin/")
+      cacheAnimal("Animations/Animal Masks/Moblin/")
+      cacheAnimal("Animations/Animal Masks/Lizalfo/")
 
-      cacheFrom("Animations/Hearts/",1,20)
+      cacheFrom("Animations/Hearts/red/",1,20)
+      cacheFrom("Animations/Hearts/white/",1,20)
 
       
 
@@ -270,20 +274,28 @@ tileEl.style.backgroundColor = "transparent";
 
         // Set the text content
         tileEl.textContent = `lv. ${tile.tile.level} (${tile.tile.health}/${tile.tile.maxHealth})`;*/
-        
-        const extraImage = document.createElement('div');
-        extraImage.style.position = "relative"
-        extraImage.style.width = "100%";   // Adjust to control scale relative to tileEl
-        extraImage.style.height = "100%";
+        function animal(alpha, path) {
+          const extraImage = document.createElement('div');
+          extraImage.style.position = "absolute"
+          extraImage.style.left = tileEl.offsetLeft
+          extraImage.style.top = tileEl.offsetTop
+          extraImage.style.width = "100%";   // Adjust to control scale relative to tileEl
+          extraImage.style.height = "100%";
+
+          extraImage.style.backgroundImage = path;
+          extraImage.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
+          extraImage.style.opacity = `${alpha}`;
+          tileEl.appendChild(extraImage);
+        }
 
         let swayFrame = Math.floor(swaySeed / 10) % 4 + 1
         if (swayFrame == 4) swayFrame = 2
 
-        extraImage.style.backgroundImage = `url('Animations/Animals/${tile.tile.type}/${tile.tile.level}/${swayFrame}.png')`;
-        extraImage.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
-        extraImage.backgroundColor = "transparent";
+        animal(1, `url('Animations/Animals/${tile.tile.type}/${tile.tile.level}/${swayFrame}.png')`)
+        if (flashSeed > 0 && tile.tile.thisHit > 0) {
+          animal(flashSeed/10, `url('Animations/Animal Masks/${tile.tile.type}/${tile.tile.level}/${swayFrame}.png')`)
+        }
 
-        tileEl.appendChild(extraImage);
         function health(numeral, brightness, alpha, path) {
           if (numeral <= 0) {return}
           const hBar = document.createElement('div');
@@ -300,7 +312,7 @@ tileEl.style.backgroundColor = "transparent";
           hBar.backgroundColor = "transparent";
           tileEl.appendChild(hBar);}
         
-        health(20,25,100,"white")
+        health(20,10,100,"white")
         if (flashSeed > 0 && tile.tile.thisHit > 0) {
           health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,flashSeed/10,"red")
           health(Math.ceil((tile.tile.health - tile.tile.thisHit)/tile.tile.maxHealth * 20),100,1,"red")
