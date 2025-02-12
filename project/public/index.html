@@ -14,6 +14,10 @@
   height: 100vh; /* Ensure full height */
 }
         html, body {
+          overscroll-behavior: none;
+  touch-action: none; /* Disables all default touch gestures */
+  overflow: hidden;  /* Prevents scrolling */
+  height: 100%; /* Ensure full-page coverage */
       height: 100%;
       margin: 0;
       display: flex;
@@ -25,16 +29,15 @@
   position: relative; /* Keeps the board centered even when resizing */
 
   /* Define minimum margins */
-  --min-margin: 50px;  /* Min margin on top, left, and right */
-  --bottom-margin: 300px; /* Larger bottom margin */
+  --min-margin: 50px;
 
   /* Calculate the max width and height while respecting margins */
   --max-width: calc(100vw - 2 * max(10vw, var(--min-margin)));
-  --max-height: calc(100vh - max(10vh, var(--min-margin)) - var(--bottom-margin));
+  --max-height: calc(100vh - max(10vh, var(--min-margin)));
 
-  /* Set board size as the largest possible square */
-  width: calc(min(var(--max-width), var(--max-height)));
-  height: calc(min(var(--max-width), var(--max-height)));
+  /* Adjust the "8/9" ratio for more vertical margin */
+  width: calc(min(var(--max-width), calc(var(--max-height) * 4/5)));
+  height: calc(min(calc(var(--max-width) * 5/4), var(--max-height)));
 
 
   display: flex;
@@ -46,7 +49,6 @@
   <div id="board"></div>
   <div id="stack"></div>
   
-
   <script>
     //convention e.g. for tile is that tile contains every relevant property for gameplay.
     //tileGraphic contains x, y, a tile, AND any associated transforms.
@@ -200,15 +202,33 @@
       
     }
 
-    // Reset board and scaling
-    function minimalReset() {
+    // Reset board and scaling, namely kills the board and gives rise to it in the guard
+    function minimalReset() { /*
+
+      const guardEl = document.getElementById('guard');
+      //Kills the guard's only child
+      while (guardEl.firstChild) {
+          guardEl.removeChild(guardEl.firstChild);
+      }
+
+      const boardEl = document.createElement('div')
+      boardEl.style.position = "fixed";
+      boardEl.style.left = `${guardEl.offsetLeft}px`; 
+      boardEl.style.top = `${guardEl.offsetTop + (guardEl.clientHeight - guardEl.clientWidth)/2}px`;  
+      //SIC
+      boardEl.style.height = `${guardEl.clientWidth}px`;
+      boardEl.style.width = `${guardEl.clientWidth}px`;
+
+      guardEl.appendChild(boardEl); */
+
       const boardEl = document.getElementById('board');
       while (boardEl.firstChild) {
           boardEl.removeChild(boardEl.firstChild);
       }
+
       //document.getElementById('board').style.backgroundColor = 'red';
       if (attackMode) {document.body.style.background = "#FFb0b0"}
-      else {document.body.style.background = "grey"}
+      else {document.body.style.background = "#444"}
       const boardWidth = boardEl.clientWidth;
       const boardHeight = boardEl.clientHeight;
       tileSize = Math.min(boardWidth / size, boardHeight / size); 
@@ -1043,9 +1063,7 @@
     document.addEventListener('mousedown', () => {if (!mouseDownDetected) {handleClick(event);}; mouseDownDetected = true;}); 
     document.addEventListener('mouseup', (event) => {mouseDownDetected = false;});
     document.addEventListener("touchmove", (event) => {event.preventDefault();}, { passive: false });
-    window.addEventListener('resize', () => {
-        drawAll();
-    });
+
     init();
   </script>
 </body>
