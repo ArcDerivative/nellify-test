@@ -131,7 +131,7 @@
       cacheAnimal("Animations/Animals/Moblin/")
       cacheAnimal("Animations/Animals/Lizalfo/")
 
-      cacheFrom("Animations/Hearts/",1,18)
+      cacheFrom("Animations/Hearts/",1,20)
 
       
 
@@ -283,7 +283,24 @@ tileEl.style.backgroundColor = "transparent";
         extraImage.backgroundColor = "transparent";
 
         tileEl.appendChild(extraImage);
+        function health(numeral, color) {
+          const hBar = document.createElement('div');
+          hBar.style.position = "absolute"
+          hBar.style.left = tileEl.offsetLeft
+          hBar.style.top = tileEl.offsetTop
+          hBar.style.width = "100%";   // Adjust to control scale relative to tileEl
+          hBar.style.height = "100%";
+          hBar.style.filter = `brightness(${color}%)`; //Degenerate no op  
 
+          hBar.style.backgroundImage = `url('Animations/Hearts/Copydest/${numeral}.png')`;
+          hBar.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
+          hBar.backgroundColor = "transparent";
+          tileEl.appendChild(hBar);}
+        
+        health(20,25)
+        health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100)
+        
+        
         // Append to the board element
         boardEl.appendChild(tileEl);
 
