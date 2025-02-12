@@ -842,6 +842,10 @@
     let killQueue = []
     // Handle arrow key presses
     function handleKey(e) {
+      handleKeyString(e.key)
+    }
+
+    function handleKeyString(st) {
       let moved = false;
       alreadyMerged = false;
       alreadyMoved = false;
@@ -850,7 +854,7 @@
         handleSwipe(e);
       }
       if (tileStack.length > 15) {return}
-      switch (e.key) {
+      switch (st) {
         case 'ArrowLeft':
           moveLeft();
           break;
@@ -1053,6 +1057,39 @@
     document.addEventListener('mousedown', () => {if (!mouseDownDetected) {handleClick(event);}; mouseDownDetected = true;}); 
     document.addEventListener('mouseup', (event) => {mouseDownDetected = false;});
     document.addEventListener("touchmove", (event) => {event.preventDefault();}, { passive: false });
+
+    let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+
+    document.addEventListener("touchstart", (event) => {
+        if (event.touches.length !== 1) return; // Ignore multi-touch
+        touchStartX = event.touches[0].clientX;
+        touchStartY = event.touches[0].clientY;
+        touchStartTime = Date.now();
+    });
+
+    document.addEventListener("touchend", (event) => {
+        if (!touchStartTime) return; // Ensure a valid start
+
+        const touchEndX = event.changedTouches[0].clientX;
+        const touchEndY = event.changedTouches[0].clientY;
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+        const elapsedTime = Date.now() - touchStartTime;
+
+        const minDistance = 50; // Minimum swipe distance (pixels)
+        const maxDuration = 300; // Max time in ms for it to be a swipe
+
+        if (elapsedTime > maxDuration) return; // Too slow, ignore
+
+        if (Math.abs(deltaX) > minDistance || Math.abs(deltaY) > minDistance) {
+            // Determine direction
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                deltaX > 0 ? handleKeyString("ArrowRight") : handleKeyString("ArrowLeft");
+            } else {
+                deltaY > 0 ? handleKeyString("ArrowDown") : handleKeyString("ArrowUp");
+            }
+        }
+    });
 
     init();
   </script>
