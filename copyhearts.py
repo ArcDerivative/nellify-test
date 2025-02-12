@@ -23,7 +23,7 @@ for subdir in os.listdir(base_dir):
                 filename = f"{photo}r.png"  # File name format
 
                 input_path = photo_path
-                output_path = input_path
+                output_path = inputtileStack.shift()_path
 
                 if os.path.exists(input_path):
                     img = Image.open(input_path).convert("RGBA")  # Ensure image has an alpha channel
