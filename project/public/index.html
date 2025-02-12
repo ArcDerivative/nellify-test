@@ -74,6 +74,10 @@
       }
     }
 
+    class BombGraphic {
+      constructor(x, y, frame) {this.x = x; this.y = y; this.frame = frame}
+    }
+
     let animalsToWeapons = { "Bokoblin": "sword", "Moblin": "two handed", "Lizalfo": "spear"}
 
     let debug = "adenosine triphosphate"
@@ -86,6 +90,10 @@
     //tileStack is a list of lists of tile graphics
     let tileStack = []
     tileStack.push(cookBoard())
+
+    let bombStack = []
+    bombStack.push([])
+    //bombStack.push([new BombGraphic(0,0,0)])
 
     let weapons = []
     //weapons.push(new Weapon("two handed", 1))
@@ -137,7 +145,7 @@
       cacheFrom("Animations/Hearts/red/",1,20)
       cacheFrom("Animations/Hearts/white/",1,20)
 
-      
+      cacheFrom("Animations/Explosion/",0,37)
 
       spawnRandomTile();
       spawnRandomTile();
@@ -188,6 +196,7 @@
       drawTileStack();
       drawOverlay();
       drawWeaponStack();
+      drawBombStack();
       drawDebug();
     }
     function drawBoard() {
@@ -202,25 +211,26 @@
           const tileEl = document.createElement('div');
 
           tileEl.style.position = "absolute";
-tileEl.style.left = `${boardEl.offsetLeft + c * 88}px`;
-tileEl.style.top = `${boardEl.offsetTop + r * 88}px`;
+          tileEl.style.left = `${boardEl.offsetLeft + c * 88}px`;
+          tileEl.style.top = `${boardEl.offsetTop + r * 88}px`;
 
-// Set the dimensions (square)
-tileEl.style.width = `80px`;
-tileEl.style.height = `80px`;
-//tilePhrase= 'bokoTile.png'
-// Set the tile image as the background
-//tileEl.style.backgroundImage = `url('${tile.tile.type.slice(0, 4).toLowerCase()}Tile.png')`;
-tileEl.style.backgroundImage = `url('Animations/Tiles/Blank.png')`;
-tileEl.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
-tileEl.style.backgroundRepeat = "no-repeat";
-// Ensure no extra background color interferes:
-tileEl.style.backgroundColor = "transparent";
+          // Set the dimensions (square)
+          tileEl.style.width = `80px`;
+          tileEl.style.height = `80px`;
+          //tilePhrase= 'bokoTile.png'
+          // Set the tile image as the background
+          //tileEl.style.backgroundImage = `url('${tile.tile.type.slice(0, 4).toLowerCase()}Tile.png')`;
+          tileEl.style.backgroundImage = `url('Animations/Tiles/Blank.png')`;
+          tileEl.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
+          tileEl.style.backgroundRepeat = "no-repeat";
+          // Ensure no extra background color interferes:
+          tileEl.style.backgroundColor = "transparent";
 
           boardEl.appendChild(tileEl);
         }
       }
     }
+
     function drawOverlay() {
       const boardEl = document.getElementById('board');
       //Cascading deep delete of everything on the 'board' element, which seems almost like a directory or grouping.
@@ -274,6 +284,7 @@ tileEl.style.backgroundColor = "transparent";
 
         // Set the text content
         tileEl.textContent = `lv. ${tile.tile.level} (${tile.tile.health}/${tile.tile.maxHealth})`;*/
+
         function animal(alpha, path) {
           const extraImage = document.createElement('div');
           extraImage.style.position = "absolute"
@@ -341,11 +352,12 @@ tileEl.style.backgroundColor = "transparent";
                 grid[i][j].health -= grid[i][j].thisHit
                 grid[i][j].thisHit = 0
                 if (grid[i][j].health <= 0) {
-                  killQueue.push(grid[i][j].type); grid[i][j] = null; qKills++
+                  killQueue.push(grid[i][j].type); grid[i][j] = null
+                  //Sic. Always leave a blank frame
+                  while(bombStack.length < 39) bombStack.push([])
+                  for (let frame = 0; frame <= 37; frame++) bombStack[frame].push(new BombGraphic(j*88-35,i*88-15,frame))
+                  qKills++
                 }
-                //TODO: This part is actually taken care of by the RENDERER. If done well, this even allows implicit combos.
-                //grid[i][j].health -= damage
-                //if (grid[i][j].health <= 0) {}
             }
         }}
       if (flashSeed == 0) {
@@ -383,6 +395,29 @@ tileEl.style.backgroundColor = "transparent";
       }
     }
     
+    function drawBombStack() {
+      const boardEl = document.getElementById('board');
+      bombStack[0].forEach(bomb => {
+        const tileEl = document.createElement('div');
+        // Position the div as before
+        tileEl.style.position = "absolute";
+        tileEl.style.left = `${boardEl.offsetLeft + bomb.x}px`;
+        tileEl.style.top = `${boardEl.offsetTop + bomb.y}px`;
+        // Set the dimensions (square)
+        tileEl.style.width = `150px`;
+        tileEl.style.height = `150px`;
+        tileEl.style.backgroundImage = `url('Animations/Explosion/${bomb.frame}.png')`;
+        tileEl.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
+        tileEl.style.backgroundColor = "transparent";
+
+        // Append to the board element
+        boardEl.appendChild(tileEl);
+      });
+      if (bombStack.length > 1) {
+        bombStack.shift()
+      }
+    }
+
     let selectionLoopSeed //Handles an oscillating animation for selected weapon.
     let swaySeed = 0
     let flashSeed = 0 //10 means an attack just happened
