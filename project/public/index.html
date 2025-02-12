@@ -1081,7 +1081,7 @@
 
         if (elapsedTime > maxDuration) return; // Too slow, ignore
 
-        if (Math.abs(deltaX) > minDistance || Math.abs(deltaY) > minDistance) {
+        if (true || Math.abs(deltaX) > minDistance || Math.abs(deltaY) > minDistance) {
             // Determine direction
             if (Math.abs(deltaX) > Math.abs(deltaY)) {
                 deltaX > 0 ? handleKeyString("ArrowRight") : handleKeyString("ArrowLeft");
