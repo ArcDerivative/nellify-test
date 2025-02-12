@@ -166,9 +166,25 @@
       boardEl.innerHTML = '';
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
-          const cell = document.createElement('div');
-          cell.classList.add('cell');
-          boardEl.appendChild(cell);
+          const tileEl = document.createElement('div');
+
+          tileEl.style.position = "absolute";
+tileEl.style.left = `${boardEl.offsetLeft + c * 88}px`;
+tileEl.style.top = `${boardEl.offsetTop + r * 88}px`;
+
+// Set the dimensions (square)
+tileEl.style.width = `80px`;
+tileEl.style.height = `80px`;
+//tilePhrase= 'bokoTile.png'
+// Set the tile image as the background
+//tileEl.style.backgroundImage = `url('${tile.tile.type.slice(0, 4).toLowerCase()}Tile.png')`;
+tileEl.style.backgroundImage = `url('Animations/Tiles/Blank.png')`;
+tileEl.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
+tileEl.style.backgroundRepeat = "no-repeat";
+// Ensure no extra background color interferes:
+tileEl.style.backgroundColor = "transparent";
+
+          boardEl.appendChild(tileEl);
         }
       }
     }
@@ -195,45 +211,63 @@
       const boardEl = document.getElementById('board');
 
       tileStack[0].forEach(tile => {
-          const tileEl = document.createElement('div');
+        const tileEl = document.createElement('div');
 
-          tileEl.style.position = "absolute";
-          tileEl.style.left = `${boardEl.offsetLeft + tile.x + (1-tile.size)*40}px`; 
-          tileEl.style.top = `${boardEl.offsetTop + tile.y + (1-tile.size)*40}px`;  
-          
-          tileEl.style.width = `${tile.size*80}px`;  // Set square width
-          tileEl.style.height = `${tile.size*80}px`; // Set square height
-          
+        // Position the div as before
+        tileEl.style.position = "absolute";
+        tileEl.style.left = `${boardEl.offsetLeft + tile.x + (1 - tile.size) * 40}px`;
+        tileEl.style.top = `${boardEl.offsetTop + tile.y + (1 - tile.size) * 40}px`;
 
-          // Center text inside the square
-          tileEl.style.display = "flex";  
-          tileEl.style.alignItems = "center";  
-          tileEl.style.justifyContent = "center";  
-          tileEl.style.color = "white"; // Makes text visible on dark red
-          tileEl.style.fontSize = `${tile.size*16}px`;  
-          tileEl.style.fontWeight = "bold";
+        // Set the dimensions (square)
+        tileEl.style.width = `${tile.size * 80}px`;
+        tileEl.style.height = `${tile.size * 80}px`;
+        //tilePhrase= 'bokoTile.png'
+        // Set the tile image as the background
+        //tileEl.style.backgroundImage = `url('${tile.tile.type.slice(0, 4).toLowerCase()}Tile.png')`;
+        tileEl.style.backgroundImage = `url('Animations/Tiles/${tile.tile.type}.png')`;
+        tileEl.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
+        tileEl.style.backgroundColor = "transparent";
 
-          switch (tile.tile.type) {
-            case "Bokoblin":
-              tileEl.style.background = "#8B0000"; break
-            case "Lizalfo":
-              tileEl.style.background = "#008B00"; break
-            case "Moblin":
-              tileEl.style.background = "#804080";break
-            default:
-              tileEl.style.background = "#000000";break
-          }
-          tileEl.textContent = `lv. ${tile.tile.level} (${tile.tile.health}/${tile.tile.maxHealth})`;
-          
-          boardEl.appendChild(tileEl);
+        //DON't show the max health
+        /*
+        // Center the text inside the div
+        tileEl.style.display = "flex";
+        tileEl.style.alignItems = "center";
+        tileEl.style.justifyContent = "center";
+        tileEl.style.color = "white"; // Makes the text visible
+        tileEl.style.fontSize = `${tile.size * 16}px`;
+        tileEl.style.fontWeight = "bold";
+
+        // Set the text content
+        tileEl.textContent = `lv. ${tile.tile.level} (${tile.tile.health}/${tile.tile.maxHealth})`;*/
+        
+        const extraImage = document.createElement('div');
+        extraImage.style.position = "relative"
+        extraImage.style.width = "100%";   // Adjust to control scale relative to tileEl
+        extraImage.style.height = "100%";
+
+        let swayFrame = Math.floor(swaySeed / 10) % 4 + 1
+        if (swayFrame == 4) swayFrame = 2
+
+        extraImage.style.backgroundImage = `url('Animations/Animals/${tile.tile.type}/${tile.tile.level}/${swayFrame}.png')`;
+        extraImage.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
+        extraImage.backgroundColor = "transparent";
+
+        tileEl.appendChild(extraImage);
+
+        // Append to the board element
+        boardEl.appendChild(tileEl);
+
       });
 
       if (tileStack.length > 1) {
         tileStack.shift()
       }
+      swaySeed += 1
     }
     
     let selectionLoopSeed //Handles an oscillating animation for selected weapon.
+    let swaySeed = 0
     // Resets to zero any time nothing is selected or is allowed to be.
     //Also updates weapon selection, which is an instance field in on the weapon itself (NOT its graphic).
     function drawWeaponStack() {
