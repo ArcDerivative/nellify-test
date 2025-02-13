@@ -150,6 +150,9 @@
 
     //Q stands for cumulative. Presumably, c will stand for combo and h for hit.
     let qKills = 0
+    let score = 0
+    let combo = 0
+
     // Initialize the board with two tiles
 
     const dontGarbageCollect = []
@@ -333,11 +336,19 @@
       textEl.style.fontFamily = "'BotW',  sans-serif";
 
       // Add text content
-      textEl.textContent = "Destination: Calabria";
+      textEl.textContent = `Score: ${score} | Combo: ${combo}`;
 
       guardEl.appendChild(textEl);
     }
 
+
+    function resetCombo() {combo = 0;
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          grid[r][c].thisCombo = 0
+        }
+      }
+    }
     function drawOverlay() {
       const boardEl = document.getElementById('board');
       //Cascading deep delete of everything on the 'board' element, which seems almost like a directory or grouping.
@@ -479,9 +490,10 @@
       swaySeed += 1
 
       if (flashSeed == 1) {
+        //Increment the combo
         killQueue = []
         for (let i = 0; i < 4; i++) {
-          for (let j = 0; j < 4; j++) 
+          for (let j = 0; j < 4; j++) {
               if (grid[i][j] !== null && grid[i][j].thisHit > 0){
                 //grid[i][j] = {...grid[i][j]}
                 grid[i][j].health -= grid[i][j].thisHit
@@ -491,10 +503,12 @@
                   //Sic. Always leave a blank frame
                   while(bombStack.length < 38) bombStack.push([])
                   for (let frame = 0; frame <= 37; frame++) bombStack[frame].push(new BombGraphic(j*eeight-(35*bigScale),i*eeight-(15*bigScale),frame))
-                  qKills++
+                  qKills++;
                 }
             }
-        }}
+        }
+      }
+    }
       if (flashSeed == 0) {
         if (killQueue.length > 0) {
         //Quick make sure board is non empty
@@ -605,8 +619,10 @@
           weapEl.style.alignItems = "center";  
           weapEl.style.justifyContent = "center";  
           weapEl.style.color = "black"; // Makes text visible on dark red
-          weapEl.style.fontSize = `${weaponWidth/2*weap.size*weap.shear}px`;  
+          weapEl.style.fontSize = `${weaponWidth*actualSize*weap.shear*0.75}px`;  
           weapEl.style.fontWeight = "bold";
+          //REPLACE
+          weapEl.style.fontFamily = "sans-serif";
 
           switch (weap.weapon.type) {
             case "spear":
@@ -965,6 +981,7 @@
           break;
       }
       if (alreadyMoved) {
+        resetCombo();
         introduceQueuedWeapons();
         spawnRandomTile();
       } 
@@ -973,7 +990,7 @@
     function nextSingleHit() {
       return 2 ** (currentWeapon.level-1) + (currentWeapon.level-1)
     }
-  function introduceQueuedWeapons() {
+    function introduceQueuedWeapons() {
     let lastWeapon = null
         while (weaponQueue.length > 0) {
           //weaponQueue.shift()
@@ -1022,6 +1039,7 @@
         //Or sometimes it doesn't
         if (!allowHover) {for (let i = 0; i < weapons.length; i++)  weapons[i].selected = false}
       } else {
+        let anyKills = false;
         for (let i = 0; i < 4; i++) {
           for (let j = 0; j < 4; j++) {
             if (targetTiles[i][j]) {
@@ -1033,7 +1051,8 @@
                 let damage = nextSingleHit()
                 //damage = 5
                 //In theory, health cannot go negative
-                if (grid[i][j].health - (damage + grid[i][j].thisHit) < 0) {
+                if (grid[i][j].health - (damage + grid[i][j].thisHit) <= 0) {
+                  anyKills = true
                   damage = grid[i][j].health - grid[i][j].thisHit
                 }
                 grid[i][j].thisHit += damage
@@ -1044,6 +1063,7 @@
             }
           }
         }
+        anyKills ? combo++ : resetCombo()
         weapons[currentIndex] = null
         collapseAndStack();
         
@@ -1162,7 +1182,7 @@
       
     } correctWeaponSelection();
   }
-  function correctThreatCalculation() {
+    function correctThreatCalculation() {
     let damage = nextSingleHit()
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
@@ -1197,10 +1217,10 @@
     let allowSelectWeapon = true
     document.addEventListener("pointermove", (_) => { allowHover = true; });
     document.addEventListener("mousemove", (event) => { 
-      //Any fleeting mouse movement is trea
-      let lambdaHover = allowHover;
-      allowHover = true;
-      handleSwipe(event); allowHover = lambdaHover})
+    //Any fleeting mouse movement is trea
+    let lambdaHover = allowHover;
+    allowHover = true;
+    handleSwipe(event); allowHover = lambdaHover})
     window.addEventListener('keydown', handleKey);
 
     let mouseDownDetected = false;
