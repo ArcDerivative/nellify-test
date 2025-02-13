@@ -256,6 +256,7 @@
       drawWeaponStack();
       drawBombStack();
       //drawDebug();
+      mousePosition.textContent = `current`;
     }
 
     function drawBoard() {
@@ -549,11 +550,12 @@
       });
       
       //Also if weapons are being animated, do this as well
-      if (!attackMode) {currentWeapon = null; currentIndex = -1}
-      if (mouseRow !== 4) {selectionLoopSeed = 0}
-      for (let i = 0; i < weapons.length; i++) {
+      if (!attackMode) {currentWeapon = null; currentIndex = -1; for (let i = 0; i < weapons.length; i++) {
         weapons[i].selected = false
-      }
+      }}
+      if (mouseRow !== 4) {selectionLoopSeed = 0}
+
+      
       if (weaponStack.length > 1) {
         allowSelectWeapon = false;
         
@@ -569,13 +571,15 @@
         //In theory is redundant
         if (!attackMode) {allowSelectWeapon = true}
         for (let i = 0; i < weapons.length; i++) {
-          if (mouseRow === 4) {
+          if (mouseRow === 4 && allowHover) {
             //fire weapon
             if (mouseCol > i - 0.5 && mouseCol <= i - 0.25) {weapons[i].selected = "merge left"; weapons[i-1].selected = "merge right"}
             else if (mouseCol > i - 0.25 && mouseCol <= i + 0.25) {weapons[i].selected = "fire"; currentIndex = i; currentWeapon = weapons[i]}
             else if (mouseCol > i + 0.25 && mouseCol <= i + 0.5 && i < weapons.length - 1)
               {weapons[i].selected = "merge right"; weapons[i+1].selected = "merge left"}
-          } else {weapons[i].selected = false}
+          } else {
+            if (!(attackMode && weapons[i].selected == "fire")) {weapons[i].selected = false}
+          }
         }
         weaponStack.push(cookStack())
         weaponStack.shift()
@@ -1009,7 +1013,7 @@
     
     //Called immediately when a swipe is let go of, in case you drag out of the screen.
 
-    //Handles literally any click EXCEPT a swap tiles
+    //NO op if the click is on a weapon -- those are handled already
     function handleHighClick(event) {
       const boardRect = boardEl.getBoundingClientRect(); // Get board position
       // Calculate relative position
@@ -1076,7 +1080,6 @@
           }
         }
       }
-      mousePosition.textContent = `row: ${mouseRow}, col: ${mouseCol} current weapon: ${printCurrentWeapon()}`;
     }
     const mousePosition = document.createElement("div");
     mousePosition.style.position = "fixed";
@@ -1096,13 +1099,16 @@
     let mouseCol
     //If for some reason you like to click outside of the grid when doing spear attacks or smth
     let allowSelectWeapon = true
-    document.addEventListener("mousemove", handleSwipe);
+    document.addEventListener("mousemove", (event) => {allowHover = true; handleSwipe(event)});
     window.addEventListener('keydown', handleKey);
 
     let mouseDownDetected = false;
     document.addEventListener("touchmove", (event) => {event.preventDefault(); handleSwipe(event.touches[0])}, { passive: false });
 
-    let startX = 0, startY = 0, startTime = 0;
+    //allowHover is whether we can safely assume that the mouse is there even when it is released.
+    //True on mouse down, touch down, or mousemove.
+    //False on touch release.
+    let startX = 0, startY = 0, startTime = 0; allowHover = true;
         //let isTouch = false; // Tracks if we're in touch mode
 
         function startTracking(x, y) {
@@ -1138,12 +1144,15 @@
             //Touch testing
             //spawnRandomTile()
             //handleStartAttackClick(event.touches[0])
+            allowHover = true
             startTracking(event.touches[0].clientX, event.touches[0].clientY);
             handleSwipe(event.touches[0]);
         });
 
         overlay.addEventListener("touchend", (event) => {
             //spawnRandomTile();
+
+            allowHover = false;
             
             //Cannot treat every low touch as a click or else we double count selecting a weapon at the bottom... and don't even think about swap operations
             handleHighClick(event.changedTouches[0])
@@ -1152,6 +1161,7 @@
 
         // Mouse events (for desktop support)
         document.addEventListener("mousedown", (event) => {
+          allowHover = true
           if (!mouseDownDetected) {handleClick(event);}; mouseDownDetected = true;
             startTracking(event.clientX, event.clientY);
         });
