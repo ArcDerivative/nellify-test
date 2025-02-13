@@ -1144,7 +1144,9 @@
 
         overlay.addEventListener("touchend", (event) => {
             //spawnRandomTile();
-            handleHighClick(event.changedTouches[0])
+            
+            handleClick(event.changedTouches[0])
+            //handleHighClick(event.changedTouches[0])
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
         });
 
