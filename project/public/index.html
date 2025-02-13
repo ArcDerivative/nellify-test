@@ -104,7 +104,7 @@
 
     let animalsToWeapons = { "Bokoblin": "sword", "Moblin": "two handed", "Lizalfo": "spear"}
 
-    let debug = "adenosine triphosphate"
+    let debug = ""
     // Board size
     const size = 4;
     // 2D array representing the grid
@@ -256,7 +256,7 @@
       drawWeaponStack();
       drawBombStack();
       //drawDebug();
-      mousePosition.textContent = `${allowHover}`;
+      mousePosition.textContent = `${allowHover} ${debug}`;
     }
 
     function drawBoard() {
@@ -1152,6 +1152,7 @@
         overlay.addEventListener("touchend", (event) => {
             //spawnRandomTile();
 
+            debug = "TOUCH ENDED"
             allowHover = false;
             
             //Cannot treat every low touch as a click or else we double count selecting a weapon at the bottom... and don't even think about swap operations
@@ -1161,7 +1162,7 @@
 
         // Mouse events (for desktop support), but seemingly triggered by isolated taps as well
         document.addEventListener("mousedown", (event) => {
-          //allowHover = true
+          allowHover = true
           if (!mouseDownDetected) {handleClick(event);}; mouseDownDetected = true;
             startTracking(event.clientX, event.clientY);
         });
