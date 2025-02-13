@@ -418,11 +418,11 @@
          }
         if (currentAnimal.canHoverTick == 0) smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop + 30*bigScale, text)
     }
-    if (false && checkGameOver()) {
-      smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+480*bigScale, "Game Over!",18)
-    }else {
     smallText(guardEl.offsetLeft + guardEl.offsetWidth / 4, guardEl.offsetTop-10*bigScale, `High Score: ${localStorage.getItem("highScore")}`)
 
+    if (checkGameOver()) {
+      smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+480*bigScale, "Game Over!",18)
+    }else {
     smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+465*bigScale, `Arrow keys / swipe controls to combine matching enemies.`)
     
     if (localStorage.getItem("seenWeapon")) {
@@ -439,7 +439,7 @@
   }
 
     function checkGameOver() {
-      if (weapons.length > 0) {
+      if (weapons.length > 0 || tileStack.length + weaponStack.length + bombStack.length > 3) {
         return false
       }
       let allPairs = []
@@ -451,7 +451,7 @@
           if (c < 3) allPairs.push([grid[r][c], grid[r][c+1]])
         }
       }
-      for (let pair = 0; pair < allPairs.length; pairs++) {
+      for (let pair = 0; pair < allPairs.length; pair++) {
         let first = allPairs[pair][0]
         let second = allPairs[pair][1]
         if (first.type === second.type && first.level === second.level) return false
