@@ -1106,6 +1106,7 @@
         });
 
         overlay.addEventListener("touchend", (event) => {
+            spawnRandomTile();
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
         });
 
