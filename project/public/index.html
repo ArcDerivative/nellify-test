@@ -70,7 +70,7 @@
         this.type = type;
         this.level = level;
         this.maxHealth = maxHealth; this.health=maxHealth;
-        this.thisHit = 0; this.thisCombo = 0;
+        this.thisHit = 0; this.thisCombo = 0; this.thisThreat = 0;
       }
     }
 
@@ -387,15 +387,20 @@
           health(Math.ceil((tile.tile.health - tile.tile.thisHit)/tile.tile.maxHealth * 20),100,1,"red")
           health(Math.ceil((tile.tile.health)/tile.tile.maxHealth * 20),100,flashSeed/10,"white")
           health(Math.ceil((tile.tile.health - tile.tile.thisHit)/tile.tile.maxHealth * 20) - 1,100,1,"red")
-        } else {
+        } else if (attackMode && tile.tile.thisThreat !== 0) {
+          //Seems to always think thisThreat = 0
+          health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,1,"red")
+          health(Math.ceil((tile.tile.health - tile.tile.thisThreat)/tile.tile.maxHealth * 20),100,1,"red")
+          health(Math.ceil((tile.tile.health)/tile.tile.maxHealth * 20),0,(Math.cos(threatLoopSeed/20)**2)/2 + 0.25,"white")
+          health(Math.ceil((tile.tile.health - tile.tile.thisThreat)/tile.tile.maxHealth * 20) - 1,100,1,"red")
+        }
+        else {
           health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,100,"red")
         }
         
         // Append to the board element
         boardEl.appendChild(tileEl);
-
-      });
-
+      })
       if (tileStack.length <= 1) {
         tileStack.push(cookBoard())
       }
@@ -404,6 +409,7 @@
       for (let frame = 0; frame < lostFrames; frame++) {
         if (tileStack.length > 1) {
           tileStack.shift()
+          threatLoopSeed++
         }
       }
 
@@ -418,7 +424,7 @@
                 grid[i][j].health -= grid[i][j].thisHit
                 grid[i][j].thisHit = 0
                 if (grid[i][j].health <= 0) {
-                  killQueue.push(grid[i][j].type); grid[i][j] = null
+                  killQueue.push(grid[i][j]); grid[i][j] = null
                   //Sic. Always leave a blank frame
                   while(bombStack.length < 38) bombStack.push([])
                   for (let frame = 0; frame <= 37; frame++) bombStack[frame].push(new BombGraphic(j*eeight-(35*bigScale),i*eeight-(15*bigScale),frame))
@@ -436,12 +442,12 @@
             //Iterate through kill queue.
             weaponQueue = []
             for (let kill = 0; kill < killQueue.length; kill++) {
-              let buffType = animalsToWeapons[killQueue[kill]]
+              let buffType = animalsToWeapons[killQueue[kill].type]
               let lowestRank = Math.min(weapons.filter(weap => weap.type === buffType).map(weap => weap.level))
               //If NO weapons are of the buffType, queue a new one at the beginning.
               if (lowestRank === 0 || lowestRank === Infinity) {
                 if (weapons.length + weaponQueue.length < weaponCap) {
-                  weaponQueue.push(new Weapon(buffType,1))
+                  weaponQueue.push(new Weapon(buffType,killQueue[kill].level))
                 }
               } else {
                 for (let weap = 0; weap < weapons.length; weap++) {
@@ -464,6 +470,7 @@
           }
         }
       }
+      threatLoopSeed++
     }
     
     function drawBombStack() {
@@ -494,7 +501,8 @@
         }
       }
     }
-    let selectionLoopSeed //Handles an oscillating animation for selected weapon.
+    let selectionLoopSeed
+    let threatLoopSeed = 0 //Handles an oscillating animation for selected weapon.
     let swaySeed = 0
     let flashSeed = 0 //10 means an attack just happened
     // Resets to zero any time nothing is selected or is allowed to be.
@@ -899,6 +907,9 @@
       } 
     }
 
+    function nextSingleHit() {
+      return 2 ** (currentWeapon.level-1) + (currentWeapon.level-1)
+    }
   function introduceQueuedWeapons() {
     let lastWeapon = null
         while (weaponQueue.length > 0) {
@@ -936,13 +947,15 @@
       if (currentWeapon !== null) {
         attackMode = true
         allowSelectWeapon = false
+        correctThreatCalculation()
       }
      } else {
       if (mouseRow == -1) {
         attackMode = false
         allowSelectWeapon = true
+        threatLoopSeed = 0
         //Force hard cancel
-        if (!allowHover) {for (let i = 0; i < weapons.length; i++)  weapons[i].selected = false}
+        //if (!allowHover) {for (let i = 0; i < weapons.length; i++)  weapons[i].selected = false}
       } else {
         for (let i = 0; i < 4; i++) {
           for (let j = 0; j < 4; j++) {
@@ -952,7 +965,7 @@
                 //Accumulate this damage to this hit and this combo
                 flashSeed = 10
                 //grid[i][j] = {...grid[i][j]}
-                let damage = 2 ** (currentWeapon.level-1) + (currentWeapon.level-1)
+                let damage = nextSingleHit()
                 //damage = 5
                 //In theory, health cannot go negative
                 if (grid[i][j].health - (damage + grid[i][j].thisHit) < 0) {
@@ -1029,6 +1042,7 @@
         }
         weapons[i].selected = false
       }; allowSelectWeapon = true}
+
       if (!anyMerges) selectionLoopSeed = 0
 
       if (allowSelectWeapon && relativeY > eeight*4 + weaponWidth + (weaponBuffer/2)) {
@@ -1078,15 +1092,24 @@
               if (col > 0) targetTiles[row][col-1] = true
               if (col < 3) targetTiles[row][col+1] = true
             }
+            correctThreatCalculation()
           }
         }
-      }
       correctWeaponSelection()
-      
-
     }
-
+  }
+  function correctThreatCalculation() {
+    let damage = nextSingleHit()
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+          if (grid[i][j] !== null) {
+            if (targetTiles[i][j]) {grid[i][j].thisThreat = damage} else {grid[i][j].thisThreat = 0}
+          }
+      }
+    }
+  }
     function correctWeaponSelection() {
+
       for (let i = 0; i < weapons.length; i++) {
         if (mouseRow === 4 && allowHover) {
           //fire weapon
