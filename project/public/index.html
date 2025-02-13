@@ -175,10 +175,12 @@
     }
     cacheOnly("Animations/Tiles/Bokoblin.png")
     let tileSize, eighty, eeight, ate, bigScale
-    function init() {
-    
-      if (false) {
-      cacheAnimal("Animations/Animals/Bokoblin/")
+
+    let didWeCache = false
+
+    function cacheEverything() {
+      if (!didWeCache) {
+        cacheAnimal("Animations/Animals/Bokoblin/")
       cacheAnimal("Animations/Animals/Moblin/")
       cacheAnimal("Animations/Animals/Lizalfo/")
       cacheAnimal("Animations/Animal Masks/Bokoblin/")
@@ -191,6 +193,8 @@
       cacheFrom("Animations/Explosion/",0,37)
       cacheFrom("Animations/TK explosion/",0,38)
       }
+    }
+    function init() {
       minimalReset();
       spawnRandomTile();
       spawnRandomTile();
@@ -985,6 +989,7 @@
     let killQueue = []
     // Handle arrow key presses
     function handleKey(e) {
+      cacheEverything()
       if (attackMode){
         attackMode = false;
         handleSwipe(e);
