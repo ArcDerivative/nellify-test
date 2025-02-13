@@ -1135,6 +1135,7 @@
         overlay.addEventListener("touchend", (event) => {
             //spawnRandomTile();
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
+            handleSwipe(event.touches[0]);
         });
 
         // Mouse events (for desktop support)
