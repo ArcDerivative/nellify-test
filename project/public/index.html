@@ -200,6 +200,9 @@
       }
     }
     function init() {
+      if (localStorage.getItem("highScore") === null){
+        localStorage.setItem("highScore",0)
+      }
       minimalReset();
       spawnRandomTile();
       spawnRandomTile();
@@ -372,7 +375,7 @@
 
       //scoreShow(0.75,`Score: ${score} | Combo: ${combo}`)
 
-      function smallCentered(height,content) {
+      function smallText(shift,height,content) {
         const hoverEl = document.createElement('div');
       hoverEl.style.position = "fixed";
 
@@ -381,7 +384,7 @@
       hoverEl.style.height = `${100 * bigScale}px`;
 
       // Center it exactly on its own center
-      hoverEl.style.left = `${guardEl.offsetLeft + guardEl.offsetWidth / 2}px`;
+      hoverEl.style.left = `${shift}px`;
       hoverEl.style.top = `${height}px`;
       hoverEl.style.transform = "translate(-50%, -50%)"; // Anchor on center
 
@@ -412,8 +415,10 @@
         if (currentAnimal.thisCombo > 0) {
           text = `${text} <this combo: ${currentAnimal.thisCombo}hp>`
          }
-        if (currentAnimal.canHoverTick == 0) smallCentered(guardEl.offsetTop + 30*bigScale, text)
+        if (currentAnimal.canHoverTick == 0) smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop + 30*bigScale, text)
     }
+
+    smallText(guardEl.offsetLeft + guardEl.offsetWidth / 4, guardEl.offsetTop-10*bigScale, `High Score: ${localStorage.getItem("highScore")}`)
   }
 
     function resetCombo() {combo = 0;
@@ -575,6 +580,7 @@
                 grid[i][j].thisHit = 0
                 if (grid[i][j].health <= 0) {
                   score += grid[i][j].maxHealth;
+                  if (score > localStorage.getItem("highScore")) localStorage.setItem("highScore",score)
                   killQueue.push(grid[i][j]); grid[i][j] = null
                   //Sic. Always leave a blank frame
                   while(bombStack.length < 38) bombStack.push([])
@@ -712,7 +718,7 @@
           }
           weapEl.textContent = `${weap.weapon.level}`;
           stackEl.appendChild(weapEl);
-          if (currentWeapon !== null && weap.weapon === currentWeapon) {
+          if (weap.weapon === currentWeapon) {
             hoverEl = document.createElement('div');
             hoverEl.style.position = "fixed";
 
@@ -1202,6 +1208,7 @@
                 }
                 grid[i][j].thisHit += damage
                 score += damage * (combo+1)
+                if (score > localStorage.getItem("highScore")) localStorage.setItem("highScore",score)
               }
             }
           }
