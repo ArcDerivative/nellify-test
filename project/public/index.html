@@ -345,7 +345,8 @@
     function resetCombo() {combo = 0;
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
-          grid[r][c].thisCombo = 0
+          if (grid[r][c] != null)
+            grid[r][c].thisCombo = 0
         }
       }
     }
@@ -391,19 +392,6 @@
         tileEl.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
         tileEl.style.backgroundColor = "transparent";
 
-        //DON't show the max health
-        /*
-        // Center the text inside the div
-        tileEl.style.display = "flex";
-        tileEl.style.alignItems = "center";
-        tileEl.style.justifyContent = "center";
-        tileEl.style.color = "white"; // Makes the text visible
-        tileEl.style.fontSize = `${tile.size * 16}px`;
-        tileEl.style.fontWeight = "bold";
-
-        // Set the text content
-        tileEl.textContent = `lv. ${tile.tile.level} (${tile.tile.health}/${tile.tile.maxHealth})`;*/
-
         function animal(alpha, path) {
           const extraImage = document.createElement('div');
           extraImage.style.position = "absolute"
@@ -428,6 +416,7 @@
 
         function health(numeral, brightness, alpha, path) {
           if (numeral <= 0) {return}
+          if (numeral > 20) numeral = 20
           const hBar = document.createElement('div');
           hBar.style.position = "absolute"
           hBar.style.left = tileEl.offsetLeft
@@ -442,7 +431,7 @@
           hBar.backgroundColor = "transparent";
           tileEl.appendChild(hBar);}
         
-         health(20,10,1,"white")
+          health(20,10,1,"white")
 
         if (flashSeed > 0 && tile.tile.thisHit > 0) {
           health(20,10,1,"white")
@@ -451,21 +440,29 @@
           health(Math.ceil((tile.tile.health - tile.tile.thisHit)/tile.tile.maxHealth * 20),100,1,"red")
           health(Math.ceil((tile.tile.health)/tile.tile.maxHealth * 20),100,flashSeed/10,"white")
           health(Math.ceil((tile.tile.health - tile.tile.thisHit)/tile.tile.maxHealth * 20) - 1,100,1,"red")
-        } else if (attackMode && tile.tile.thisThreat !== 0) {
-          //Seems to always think thisThreat = 0
-          if (tile.tile.health - tile.tile.thisThreat <= 0) {
-            health(1,100,1,"death")
-            health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,(Math.cos(threatLoopSeed/10)**2)/2 + 0.25,"red")
-            health(20,0,(Math.cos(threatLoopSeed/10)**2)/2 + 0.25,"white")
+        } else if (attackMode) {
+            if (tile.tile.thisThreat === 0) {
+              health(20,10,1,"white")
+              if (tile.tile.thisCombo > 0) health(Math.ceil((tile.tile.health+tile.tile.thisCombo)/tile.tile.maxHealth * 20),20,1,"white")
+              health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,100,"red")
+            } else {
+              //Seems to always think thisThreat = 0
+              if (tile.tile.health - tile.tile.thisThreat <= 0) {
+                health(1,100,1,"death")
+                //Don't show combo here as it's a little over the top.
+                //if (tile.tile.thisCombo > 0)  health(Math.ceil((tile.tile.health+tile.tile.thisCombo)/tile.tile.maxHealth * 20),25,(Math.cos(threatLoopSeed/10)**2)/2 + 0.25,"white")
+                health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,(Math.cos(threatLoopSeed/10)**2)/2 + 0.25,"red")
+                health(20,0,(Math.cos(threatLoopSeed/10)**2)/2 + 0.25,"white")
 
-          } else {
-            health(20,10,1,"white")
-            health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,1,"red")
-            health(Math.ceil((tile.tile.health - tile.tile.thisThreat)/tile.tile.maxHealth * 20),100,1,"red")
-            health(Math.ceil((tile.tile.health)/tile.tile.maxHealth * 20),0,(Math.cos(threatLoopSeed/20)**2)/4 + 0.5,"white")
-            health(Math.ceil((tile.tile.health - tile.tile.thisThreat)/tile.tile.maxHealth * 20) - 1,100,1,"red")
+              } else {
+                health(20,10,1,"white")
+                if (tile.tile.thisCombo > 0)  health(Math.ceil((tile.tile.health+tile.tile.thisCombo)/tile.tile.maxHealth * 20),20,1,"white")
+                health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,1,"red")
+                health(Math.ceil((tile.tile.health - tile.tile.thisThreat)/tile.tile.maxHealth * 20),100,1,"red")
+                health(Math.ceil((tile.tile.health)/tile.tile.maxHealth * 20),0,(Math.cos(threatLoopSeed/20)**2)/4 + 0.5,"white")
+                health(Math.ceil((tile.tile.health - tile.tile.thisThreat)/tile.tile.maxHealth * 20) - 1,100,1,"red")
+              }
           }
-          
         }
         else {
           health(20,10,1,"white")
@@ -497,6 +494,7 @@
               if (grid[i][j] !== null && grid[i][j].thisHit > 0){
                 //grid[i][j] = {...grid[i][j]}
                 grid[i][j].health -= grid[i][j].thisHit
+                grid[i][j].thisCombo += grid[i][j].thisHit
                 grid[i][j].thisHit = 0
                 if (grid[i][j].health <= 0) {
                   killQueue.push(grid[i][j]); grid[i][j] = null
@@ -619,7 +617,7 @@
           weapEl.style.alignItems = "center";  
           weapEl.style.justifyContent = "center";  
           weapEl.style.color = "black"; // Makes text visible on dark red
-          weapEl.style.fontSize = `${weaponWidth*actualSize*weap.shear*0.75}px`;  
+          weapEl.style.fontSize = `${weaponWidth*actualSize*weap.shear*0.66}px`;  
           weapEl.style.fontWeight = "bold";
           //REPLACE
           weapEl.style.fontFamily = "sans-serif";
@@ -1056,9 +1054,6 @@
                   damage = grid[i][j].health - grid[i][j].thisHit
                 }
                 grid[i][j].thisHit += damage
-                //TODO: This part is actually taken care of by the RENDERER. If done well, this even allows implicit combos.
-                //grid[i][j].health -= damage
-                //if (grid[i][j].health <= 0) {killQueue.push(grid[i][j].type); grid[i][j] = null; qKills++}
               }
             }
           }
@@ -1140,12 +1135,9 @@
         if (mouseCol < 0) {mouseCol = 0}
         if (mouseCol > weaponCap - 1) {mouseCol = weaponCap - 1}
       } else { 
-        if (Math.min(relativeX, relativeY) < -eeight) {
+        if (Math.min(relativeX, relativeY) < -eeight || Math.max(relativeX, relativeY) > eeight*5 || attackMode && relativeY > eeight*4) {
           mouseRow = -1
-        } else if (Math.max(relativeX, relativeY) > eeight*5) {
-          mouseRow = -1
-        } else if (attackMode && relativeY > eeight*4) {
-          mouseRow = -1
+          correctThreatCalculation()
         } else {
           mouseRow = (relativeY - (eighty/2)) / eeight
           mouseCol = (relativeX - (eighty/2)) / eeight
@@ -1261,20 +1253,12 @@
         const overlay = document.getElementById("swipeOverlay")
 
         overlay.addEventListener("touchstart", (event) => {
-            //isTouch = true;
-            //Touch testing
-            //spawnRandomTile()
-            //handleStartAttackClick(event.touches[0])
             allowHover = true;
             startTracking(event.touches[0].clientX, event.touches[0].clientY);
             handleSwipe(event.touches[0]);
         });
 
         overlay.addEventListener("touchend", (event) => {
-            //spawnRandomTile();
-
-            //Now allowHover is basically always true
-            
             //Cannot treat every low touch as a click or else we double count selecting a weapon at the bottom... and don't even think about swap operations
             handleHighClick(event.changedTouches[0])
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
