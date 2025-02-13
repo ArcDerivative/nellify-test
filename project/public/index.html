@@ -1010,21 +1010,13 @@
     //Called immediately when a swipe is let go of, in case you drag out of the screen.
 
     //Handles literally any click EXCEPT a swap tiles
-    function handleStartAttackClick(event) {
-      if (mouseRow === 4) {
-        for (let i = 0; i < weapons.length - 1; i++) {
-          if (weapons[i].selected === "merge right") {return}
-        }
-      }
-      handleClick(event)
-    }
-    function handleLowClick(event) {
+    function handleHighClick(event) {
       const boardRect = boardEl.getBoundingClientRect(); // Get board position
       // Calculate relative position
       relativeX = event.clientX - boardRect.left;
       relativeY = event.clientY - boardRect.top;
       
-      if (relativeY > eeight*4) {
+      if (relativeY <= eeight*4) {
           handleClick(event)
         }
     }
@@ -1152,7 +1144,7 @@
 
         overlay.addEventListener("touchend", (event) => {
             //spawnRandomTile();
-            //handleHighClick(event.changedTouches[0])
+            handleHighClick(event.changedTouches[0])
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
         });
 
