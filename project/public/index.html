@@ -120,10 +120,10 @@
     //bombStack.push([new BombGraphic(0,0,0)])
 
     let weapons = []
-    weapons.push(new Weapon("two handed", 1))
+    /*weapons.push(new Weapon("two handed", 1))
     weapons.push(new Weapon("sword", 2))
     weapons.push(new Weapon("two handed", 1))
-    weapons.push(new Weapon("sword", 2))
+    weapons.push(new Weapon("sword", 2))*/
     let weaponStack = []
     let weaponWidth, weaponBuffer
     //Max weapons wieldable at once
@@ -506,10 +506,7 @@
       const stackEl = document.getElementById('stack');
       stackEl.innerHTML = '';
       if ((weapons[weapons.length - 1].selected == "merge right")) {weapons[weapons.length - 1].selected = false}
-      if (!(attackMode || allowHover)) {for (let i = 0; i < weapons.length; i++) {
-        weapons[i].selected = false
-      }
-    }
+    
 
       weaponStack[0].forEach(weap => {
           const weapEl = document.createElement('div');
@@ -948,6 +945,10 @@
       if (mouseRow == -1) {
         attackMode = false
         allowSelectWeapon = true
+        //Force hard cancel
+        if (!allowHover) {for (let i = 0; i < weapons.length; i++) {
+        weapons[i].selected = false
+      }
       } else {
         for (let i = 0; i < 4; i++) {
           for (let j = 0; j < 4; j++) {
@@ -1004,6 +1005,7 @@
       }
       
     }
+  }
     
     //Called immediately when a swipe is let go of, in case you drag out of the screen.
 
