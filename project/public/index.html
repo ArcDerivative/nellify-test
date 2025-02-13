@@ -1101,14 +1101,11 @@
     let allowSelectWeapon = true
     document.addEventListener("pointermove", (_) => { allowHover = true; });
     document.addEventListener("mousemove", (event) => { 
-      let oldAllowHover = allowHover;
-      allowHover = true;
-      handleSwipe(event)
-      allowHover = oldAllowHover});
+      handleSwipe(event)})
     window.addEventListener('keydown', handleKey);
 
     let mouseDownDetected = false;
-    document.addEventListener("touchmove", (event) => {event.preventDefault(); handleSwipe(event.touches[0])}, { passive: false });
+    document.addEventListener("touchmove", (event) => {event.preventDefault(); allowHover = true; handleSwipe(event.touches[0])}, { passive: false });
 
     //allowHover is whether we can safely assume that the mouse is there even when it is released.
     //True on touch down, or mousemove.
@@ -1149,6 +1146,7 @@
             //Touch testing
             //spawnRandomTile()
             //handleStartAttackClick(event.touches[0])
+            allowHover = true;
             startTracking(event.touches[0].clientX, event.touches[0].clientY);
             handleSwipe(event.touches[0]);
         });
