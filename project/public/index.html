@@ -1149,7 +1149,7 @@
 
         overlay.addEventListener("touchend", (event) => {
             //spawnRandomTile();
-            tryCancelAttack(event.changedTouches[0])
+            mouseRow = -1 //tryCancelAttack(event.changedTouches[0])
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
         });
 
