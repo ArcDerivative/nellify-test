@@ -505,7 +505,7 @@
       const boardEl = document.getElementById('board');
       const stackEl = document.getElementById('stack');
       stackEl.innerHTML = '';
-      if ((weapons.length > 0 && weapons[weapons.length - 1].selected == "merge right")) {weapons[weapons.length - 1].selected = false}
+      correctWeaponSelection()
       weaponStack[0].forEach(weap => {
           const weapEl = document.createElement('div');
          
@@ -1081,7 +1081,12 @@
           }
         }
       }
+      correctWeaponSelection()
       
+
+    }
+
+    function correctWeaponSelection() {
       for (let i = 0; i < weapons.length; i++) {
         if (mouseRow === 4 && allowHover) {
           //fire weapon
@@ -1093,7 +1098,6 @@
           if (!(attackMode && weapons[i].selected == "fire")) {weapons[i].selected = false}
         }
       }
-
     }
     const mousePosition = document.createElement("div");
     mousePosition.style.position = "fixed";
