@@ -549,13 +549,6 @@
           stackEl.appendChild(weapEl);
       });
       
-      //Also if weapons are being animated, do this as well
-      if (!attackMode) {currentWeapon = null; currentIndex = -1; for (let i = 0; i < weapons.length; i++) {
-        weapons[i].selected = false
-      }}
-      if (mouseRow !== 4) {selectionLoopSeed = 0}
-
-      
       if (weaponStack.length > 1) {
         allowSelectWeapon = false;
         
@@ -564,23 +557,13 @@
         let lostFrames = Math.floor(lastDelta / (1000/60)) - 1 // Number of frames we should have expected in the interim
         for (let frame = 0; frame < lostFrames; frame++) {
           if (weaponStack.length > 1) {
+            //selectionLoopSeed++ if lag is sufficient
             weaponStack.shift()
           }
         }
       } else {
         //In theory is redundant
-        if (!attackMode) {allowSelectWeapon = true}
-        for (let i = 0; i < weapons.length; i++) {
-          if (mouseRow === 4 && allowHover) {
-            //fire weapon
-            if (mouseCol > i - 0.5 && mouseCol <= i - 0.25) {weapons[i].selected = "merge left"; weapons[i-1].selected = "merge right"}
-            else if (mouseCol > i - 0.25 && mouseCol <= i + 0.25) {weapons[i].selected = "fire"; currentIndex = i; currentWeapon = weapons[i]}
-            else if (mouseCol > i + 0.25 && mouseCol <= i + 0.5 && i < weapons.length - 1)
-              {weapons[i].selected = "merge right"; weapons[i+1].selected = "merge left"}
-          } else {
-            if (!(attackMode && weapons[i].selected == "fire")) {weapons[i].selected = false}
-          }
-        }
+        //Move code to after swipe
         weaponStack.push(cookStack())
         weaponStack.shift()
      }
@@ -1033,6 +1016,18 @@
       // Calculate relative position
       relativeX = event.clientX - boardRect.left;
       relativeY = event.clientY - boardRect.top;
+
+      //Also if weapons are being animated, do this as well
+
+      let anyMerges = false
+      if (!attackMode) {currentWeapon = null; currentIndex = -1; for (let i = 0; i < weapons.length; i++) {
+        if (weapons[i].selected == "merge right") {
+          anyMerges = true
+        }
+        weapons[i].selected = false
+      }; allowSelectWeapon = true}
+      if (!anyMerges) selectionLoopSeed = 0
+
       if (allowSelectWeapon && relativeY > eeight*4 + weaponWidth + (weaponBuffer/2)) {
         //This only throws immediately if weapon selection is allowed.
         mouseRow = -1
@@ -1083,6 +1078,19 @@
           }
         }
       }
+      
+      for (let i = 0; i < weapons.length; i++) {
+        if (mouseRow === 4) {
+          //fire weapon
+          if (mouseCol > i - 0.5 && mouseCol <= i - 0.25) {weapons[i].selected = "merge left"; weapons[i-1].selected = "merge right"}
+          else if (mouseCol > i - 0.25 && mouseCol <= i + 0.25) {weapons[i].selected = "fire"; currentIndex = i; currentWeapon = weapons[i]}
+          else if (mouseCol > i + 0.25 && mouseCol <= i + 0.5 && i < weapons.length - 1)
+            {weapons[i].selected = "merge right"; weapons[i+1].selected = "merge left"}
+        } else {
+          if (!(attackMode && weapons[i].selected == "fire")) {weapons[i].selected = false}
+        }
+      }
+
     }
     const mousePosition = document.createElement("div");
     mousePosition.style.position = "fixed";
@@ -1161,11 +1169,12 @@
             //spawnRandomTile();
 
             //Now allowHover is basically always true
-            //allowHover = false;
             
             //Cannot treat every low touch as a click or else we double count selecting a weapon at the bottom... and don't even think about swap operations
             handleHighClick(event.changedTouches[0])
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
+
+            allowHover = false;
         });
 
         // Mouse events (for desktop support).
