@@ -1145,9 +1145,9 @@
             //Touch testing
             //spawnRandomTile()
             //handleStartAttackClick(event.touches[0])
+            allowHover = true
             startTracking(event.touches[0].clientX, event.touches[0].clientY);
             handleSwipe(event.touches[0]);
-            allowHover = true
         });
 
         overlay.addEventListener("touchend", (event) => {
