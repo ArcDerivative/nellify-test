@@ -1159,9 +1159,9 @@
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
         });
 
-        // Mouse events (for desktop support)
+        // Mouse events (for desktop support), but seemingly triggered by isolated taps as well
         document.addEventListener("mousedown", (event) => {
-          allowHover = true
+          //allowHover = true
           if (!mouseDownDetected) {handleClick(event);}; mouseDownDetected = true;
             startTracking(event.clientX, event.clientY);
         });
