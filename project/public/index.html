@@ -177,9 +177,10 @@
       requestAnimationFrame(gameLoop);
     }
 
-    let lastFrameTime = 0;
+    let lastFrameTime = 0; let lastDelta = 0;
     function gameLoop(currentTime) {
       if (currentTime - lastFrameTime >= 1000/60) {
+        lastDelta = currentTime - lastFrameTime
         lastFrameTime = currentTime;
         drawAll();
       }
@@ -539,6 +540,13 @@
         allowSelectWeapon = false;
         
         weaponStack.shift()
+        
+        let lostFrames = Math.floor(lastDelta / (1000/60)) - 1 // Number of frames we should have expected in the interim
+        for (let frame = 0; frame < lostFrames; frame++) {
+          if (weaponStack.length > 1) {
+            weaponStack.shift()
+          }
+        }
       } else {
         //In theory is redundant
         if (!attackMode) {allowSelectWeapon = true}
@@ -1081,7 +1089,7 @@
             const deltaY = y - startY;
             const elapsedTime = Date.now() - startTime;
 
-            const minDistance = 50;  // Minimum swipe distance in pixels
+            const minDistance = 100;  // Minimum swipe distance in pixels
             const maxDuration = 300; // Max time in ms for it to be considered a swipe
 
             if (elapsedTime > maxDuration) return; // Too slow, ignore
