@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Zelda 2048</title>
+  <title>Tiles of the Kingdom</title>
   <style>
     body {
   font-family: sans-serif;
@@ -57,7 +57,8 @@
         }
 @font-face {
     font-family: 'BotW'; /* This is the name you will use in CSS */
-    src: url('Fonts/HyliaSerifBeta-Regular.woff2') format('woff2'); 
+    /*src: url('Fonts/HyliaSerifBeta-Regular.woff2') format('woff2'); */
+    src: url('Fonts/HyliaSerifBeta-Regular.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 }
@@ -371,7 +372,7 @@
         9:"#990055",
         10:"#882266",
         }[Math.min(combo,10)]
-      scoreShow(0.75,`Combo: ${combo}`,color,comboSize)
+      scoreShow(0.75,`Killstreak: ${combo}`,color,comboSize)
       comboSize **= 0.99
 
       //scoreShow(0.75,`Score: ${score} | Combo: ${combo}`)
@@ -414,7 +415,7 @@
         if (currentAnimal.type === "Lizalfo" && color == "Red") color = "Green"
         let text = `${color} ${currentAnimal.type} (${currentAnimal.health}hp/${currentAnimal.maxHealth})`
         if (currentAnimal.thisCombo > 0) {
-          text = `${text} <this combo: ${currentAnimal.thisCombo}hp>`
+          text = `${text} <this killstreak: ${currentAnimal.thisCombo}hp>`
          }
         if (currentAnimal.canHoverTick == 0) smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop + 30*bigScale, text)
     }
