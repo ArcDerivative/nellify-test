@@ -381,20 +381,33 @@
           hBar.backgroundColor = "transparent";
           tileEl.appendChild(hBar);}
         
-        health(20,10,100,"white")
+         health(20,10,1,"white")
+
         if (flashSeed > 0 && tile.tile.thisHit > 0) {
+          health(20,10,1,"white")
+
           health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,flashSeed/10,"red")
           health(Math.ceil((tile.tile.health - tile.tile.thisHit)/tile.tile.maxHealth * 20),100,1,"red")
           health(Math.ceil((tile.tile.health)/tile.tile.maxHealth * 20),100,flashSeed/10,"white")
           health(Math.ceil((tile.tile.health - tile.tile.thisHit)/tile.tile.maxHealth * 20) - 1,100,1,"red")
         } else if (attackMode && tile.tile.thisThreat !== 0) {
           //Seems to always think thisThreat = 0
-          health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,1,"red")
-          health(Math.ceil((tile.tile.health - tile.tile.thisThreat)/tile.tile.maxHealth * 20),100,1,"red")
-          health(Math.ceil((tile.tile.health)/tile.tile.maxHealth * 20),0,(Math.cos(threatLoopSeed/20)**2)/2 + 0.25,"white")
-          health(Math.ceil((tile.tile.health - tile.tile.thisThreat)/tile.tile.maxHealth * 20) - 1,100,1,"red")
+          if (tile.tile.health - tile.tile.thisThreat <= 0) {
+            health(1,100,1,"death")
+            health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,(Math.cos(threatLoopSeed/10)**2)/2 + 0.25,"red")
+            health(20,0,(Math.cos(threatLoopSeed/10)**2)/2 + 0.25,"white")
+
+          } else {
+            health(20,10,1,"white")
+            health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,1,"red")
+            health(Math.ceil((tile.tile.health - tile.tile.thisThreat)/tile.tile.maxHealth * 20),100,1,"red")
+            health(Math.ceil((tile.tile.health)/tile.tile.maxHealth * 20),0,(Math.cos(threatLoopSeed/20)**2)/2 + 0.25,"white")
+            health(Math.ceil((tile.tile.health - tile.tile.thisThreat)/tile.tile.maxHealth * 20) - 1,100,1,"red")
+          }
+          
         }
         else {
+          health(20,10,1,"white")
           health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,100,"red")
         }
         
