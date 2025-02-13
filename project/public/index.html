@@ -1101,9 +1101,10 @@
     let allowSelectWeapon = true
     document.addEventListener("pointermove", (_) => { allowHover = true; });
     document.addEventListener("mousemove", (event) => { 
-      //INTENTIONALLY is a no op that basically triggers allow hover whenever
+      //Any fleeting mouse movement is trea
+      let lambdaHover = allowHover;
       allowHover = true;
-      handleSwipe(event)})
+      handleSwipe(event); allowHover = lambdaHover})
     window.addEventListener('keydown', handleKey);
 
     let mouseDownDetected = false;
