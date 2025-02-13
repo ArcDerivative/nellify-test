@@ -505,9 +505,7 @@
       const boardEl = document.getElementById('board');
       const stackEl = document.getElementById('stack');
       stackEl.innerHTML = '';
-      if ((weapons[weapons.length - 1].selected == "merge right")) {weapons[weapons.length - 1].selected = false}
-    
-
+      if ((weapons.length > 0 && weapons[weapons.length - 1].selected == "merge right")) {weapons[weapons.length - 1].selected = false}
       weaponStack[0].forEach(weap => {
           const weapEl = document.createElement('div');
          
@@ -569,8 +567,6 @@
         weaponStack.push(cookStack())
         weaponStack.shift()
       }
-
-       
     }
 
     function printCurrentWeapon() {
@@ -946,9 +942,7 @@
         attackMode = false
         allowSelectWeapon = true
         //Force hard cancel
-        if (!allowHover) {for (let i = 0; i < weapons.length; i++) {
-        weapons[i].selected = false
-      }
+        if (!allowHover) {for (let i = 0; i < weapons.length; i++)  weapons[i].selected = false
       } else {
         for (let i = 0; i < 4; i++) {
           for (let j = 0; j < 4; j++) {
