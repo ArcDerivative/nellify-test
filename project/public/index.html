@@ -712,7 +712,7 @@
           }
           weapEl.textContent = `${weap.weapon.level}`;
           stackEl.appendChild(weapEl);
-          if (currentWeapon !== null && weap.weapon.selected == "fire") {
+          if (currentWeapon !== null && weap.weapon === currentWeapon) {
             hoverEl = document.createElement('div');
             hoverEl.style.position = "fixed";
 
