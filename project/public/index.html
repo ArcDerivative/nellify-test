@@ -1145,8 +1145,8 @@
         overlay.addEventListener("touchend", (event) => {
             //spawnRandomTile();
             
-            handleClick(event.changedTouches[0])
-            //handleHighClick(event.changedTouches[0])
+            //Cannot treat every low touch as a click or else we double count selecting a weapon at the bottom... and don't even think about swap operations
+            handleHighClick(event.changedTouches[0])
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
         });
 
