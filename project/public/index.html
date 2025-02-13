@@ -50,6 +50,7 @@
             width: 100vw;
             height: 100vh;
             z-index: 9999; /* Always in front */
+            background-color: rgba(255, 0, 0, 0.5);
             pointer-events: none; /* Allows clicks to pass through */
         }
   </style>
@@ -302,6 +303,7 @@
           boardEl.appendChild(tileEl);
         }
       }
+      document.getElementById("swipeOverlay").backgroundColor = "red"
     }
     function drawTileStack() {
       const boardEl = document.getElementById('board');
