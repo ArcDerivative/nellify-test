@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Kill Animations</title>
+  <title>Zelda 2048</title>
   <style>
     body {
   font-family: sans-serif;
@@ -376,7 +376,7 @@
 
       //scoreShow(0.75,`Score: ${score} | Combo: ${combo}`)
 
-      function smallText(shift,height,content) {
+      function smallText(shift,height,content,actualSize = 12) {
         const hoverEl = document.createElement('div');
       hoverEl.style.position = "fixed";
 
@@ -398,7 +398,7 @@
       hoverEl.style.justifyContent = "center";
       hoverEl.style.textAlign = "center";
       hoverEl.style.color = "white"; // Change text color for visibility
-      hoverEl.style.fontSize = `${12*bigScale}px`; // Adjust as needed
+      hoverEl.style.fontSize = `${actualSize*bigScale}px`; // Adjust as needed
 
       hoverEl.style.fontFamily = "'BotW',  sans-serif";
 
@@ -418,7 +418,9 @@
          }
         if (currentAnimal.canHoverTick == 0) smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop + 30*bigScale, text)
     }
-
+    if (false && checkGameOver()) {
+      smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+480*bigScale, "Game Over!",18)
+    }else {
     smallText(guardEl.offsetLeft + guardEl.offsetWidth / 4, guardEl.offsetTop-10*bigScale, `High Score: ${localStorage.getItem("highScore")}`)
 
     smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+465*bigScale, `Arrow keys / swipe controls to combine matching enemies.`)
@@ -434,7 +436,28 @@
       }
     }
   }
+  }
 
+    function checkGameOver() {
+      if (weapons.length > 0) {
+        return false
+      }
+      let allPairs = []
+      for (let r = 0; r <= 3; r++) {
+        for (let c = 0; c <= 3; c++)
+        {
+          if (grid[r][c] === null) return false
+          if (r < 3) allPairs.push([grid[r][c], grid[r+1][c]])
+          if (c < 3) allPairs.push([grid[r][c], grid[r][c+1]])
+        }
+      }
+      for (let pair = 0; pair < allPairs.length; pairs++) {
+        let first = allPairs[pair][0]
+        let second = allPairs[pair][1]
+        if (first.type === second.type && first.level === second.level) return false
+      }
+      return true
+    }
     function resetCombo() {combo = 0;
       for (let r = 0; r < size; r++) {
         for (let c = 0; c < size; c++) {
@@ -618,7 +641,7 @@
               let buffType = animalsToWeapons[killQueue[kill].type]
               let lowestRank = Math.min(weapons.filter(weap => weap.type === buffType).map(weap => weap.level))
               //If NO weapons are of the buffType, queue a new one at the beginning.
-              if (lowestRank === 0 || lowestRank === Infinity) {
+              if (lowestRank === 0 || lowestRank === 5 || lowestRank === Infinity) {
                 if (weapons.length + weaponQueue.length < weaponCap) {
                   weaponQueue.push(new Weapon(buffType,killQueue[kill].level))
                 }
