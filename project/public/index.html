@@ -43,12 +43,24 @@
   display: flex;
   flex-wrap: wrap;
 }
+#swipeOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999; /* Always in front */
+            background-color: rgba(255, 0, 0, 0.5);
+            pointer-events: none; /* Allows clicks to pass through */
+        }
   </style>
 </head>
 <body>
   <div id="guard"></div>
   <div id="board"></div>
   <div id="stack"></div>
+
+  <div id="swipeOverlay"></div>
   
   <script>
     //convention e.g. for tile is that tile contains every relevant property for gameplay.
@@ -291,6 +303,7 @@
           boardEl.appendChild(tileEl);
         }
       }
+
     }
     function drawTileStack() {
       const boardEl = document.getElementById('board');
@@ -1083,15 +1096,16 @@
             }
         }
 
-        document.addEventListener("touchstart", (event) => {
+        const overlay = document.getElementById("swipeOverlay")
+
+        overlay.addEventListener("touchstart", (event) => {
             //isTouch = true;
             //Touch testing
             //spawnRandomTile()
-            flashSeed = 10
             startTracking(event.touches[0].clientX, event.touches[0].clientY);
         });
 
-        document.addEventListener("touchend", (event) => {
+        overlay.addEventListener("touchend", (event) => {
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
         });
 
