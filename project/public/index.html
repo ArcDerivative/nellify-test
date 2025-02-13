@@ -708,6 +708,33 @@
           }
           weapEl.textContent = `${weap.weapon.level}`;
           stackEl.appendChild(weapEl);
+          if (currentWeapon !== null && weap.weapon.selected == "fire") {
+            hoverEl = document.createElement('div');
+            hoverEl.style.position = "fixed";
+
+            // Set dimensions (square)
+            hoverEl.style.width = `${400 * bigScale}px`;
+            hoverEl.style.height = `${100 * bigScale}px`;
+
+            // Center it exactly on its own center
+            hoverEl.style.left = `${weapEl.offsetLeft + weapEl.offsetWidth / 2}px`;
+            hoverEl.style.top = `${weapEl.offsetTop + weaponWidth + 15*bigScale}px`;
+            hoverEl.style.transform = "translate(-50%, -50%)"; // Anchor on center
+
+            // Ensure no extra background color interferes:
+            hoverEl.style.backgroundColor = "transparent";
+
+            // Center the text inside
+            hoverEl.style.display = "flex";
+            hoverEl.style.alignItems = "center";
+            hoverEl.style.justifyContent = "center";
+            hoverEl.style.textAlign = "center";
+            hoverEl.style.color = "white"; // Change text color for visibility
+            hoverEl.style.fontSize = `${12*bigScale}px`; // Adjust as needed
+
+            hoverEl.style.fontFamily = "'BotW',  sans-serif";
+            hoverEl.textContent = printCurrentWeapon()
+            boardEl.appendChild(hoverEl)}
       });
       
       if (weaponStack.length > 1) {
