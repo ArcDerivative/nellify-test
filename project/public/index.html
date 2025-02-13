@@ -398,6 +398,13 @@
         tileStack.push(cookBoard())
       }
       tileStack.shift();
+      let lostFrames = Math.floor(lastDelta / (1000/60)) - 1 // Number of frames we should have expected in the interim
+      for (let frame = 0; frame < lostFrames; frame++) {
+        if (tileStack.length > 1) {
+          tileStack.shift()
+        }
+      }
+      
       swaySeed += 1
 
       if (flashSeed == 1) {
