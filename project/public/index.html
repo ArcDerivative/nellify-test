@@ -864,7 +864,7 @@
     function handleKeyString(st) {
       alreadyMerged = false;
       alreadyMoved = false;
-      if (tileStack.length > 15) {return}
+      if (tileStack.length > 10) {return}
       switch (st) {
         case 'ArrowLeft':
           moveLeft();
@@ -1084,7 +1084,7 @@
             const minDistance = 50;  // Minimum swipe distance in pixels
             const maxDuration = 300; // Max time in ms for it to be considered a swipe
 
-            //if (elapsedTime > maxDuration) return; // Too slow, ignore
+            if (elapsedTime > maxDuration) return; // Too slow, ignore
 
             if (Math.abs(deltaX) > minDistance || Math.abs(deltaY) > minDistance) {
                 // Determine closest cardinal direction
