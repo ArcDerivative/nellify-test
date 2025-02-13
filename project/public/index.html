@@ -949,7 +949,7 @@
                 //Accumulate this damage to this hit and this combo
                 flashSeed = 10
                 //grid[i][j] = {...grid[i][j]}
-                let damage = currentWeapon.level
+                let damage = 2 ** (currentWeapon.level-1) + (currentWeapon.level-1)
                 //damage = 5
                 //In theory, health cannot go negative
                 if (grid[i][j].health - (damage + grid[i][j].thisHit) < 0) {
