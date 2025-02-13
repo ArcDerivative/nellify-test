@@ -43,24 +43,12 @@
   display: flex;
   flex-wrap: wrap;
 }
-#swipeOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 9999; /* Always in front */
-            background-color: rgba(255, 0, 0, 0.5);
-            pointer-events: none; /* Allows clicks to pass through */
-        }
   </style>
 </head>
 <body>
   <div id="guard"></div>
   <div id="board"></div>
   <div id="stack"></div>
-
-  <div id="swipeOverlay"></div>
   
   <script>
     //convention e.g. for tile is that tile contains every relevant property for gameplay.
@@ -854,17 +842,16 @@
     let killQueue = []
     // Handle arrow key presses
     function handleKey(e) {
-      handleKeyString(e.key)
-    }
-
-    function handleKeyString(st) {
-      let moved = false;
-      alreadyMerged = false;
-      alreadyMoved = false;
       if (attackMode){
         attackMode = false;
         handleSwipe(e);
       }
+      handleKeyString(e.key)
+    }
+
+    function handleKeyString(st) {
+      alreadyMerged = false;
+      alreadyMoved = false;
       if (tileStack.length > 15) {return}
       switch (st) {
         case 'ArrowLeft':
@@ -1085,7 +1072,7 @@
             const minDistance = 50;  // Minimum swipe distance in pixels
             const maxDuration = 300; // Max time in ms for it to be considered a swipe
 
-            if (elapsedTime > maxDuration) return; // Too slow, ignore
+            //if (elapsedTime > maxDuration) return; // Too slow, ignore
 
             if (Math.abs(deltaX) > minDistance || Math.abs(deltaY) > minDistance) {
                 // Determine closest cardinal direction
@@ -1097,12 +1084,11 @@
             }
         }
 
-        const overlay = document //.getElementById("swipeOverlay")
-        // Touch events
         document.addEventListener("touchstart", (event) => {
             //isTouch = true;
             //Touch testing
-            spawnRandomTile()
+            //spawnRandomTile()
+            flashSeed = 10
             startTracking(event.touches[0].clientX, event.touches[0].clientY);
         });
 
