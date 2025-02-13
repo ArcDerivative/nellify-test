@@ -1144,9 +1144,9 @@
             //Touch testing
             //spawnRandomTile()
             //handleStartAttackClick(event.touches[0])
-            allowHover = true
             startTracking(event.touches[0].clientX, event.touches[0].clientY);
             handleSwipe(event.touches[0]);
+            allowHover = true
         });
 
         overlay.addEventListener("touchend", (event) => {
@@ -1157,8 +1157,6 @@
             //Cannot treat every low touch as a click or else we double count selecting a weapon at the bottom... and don't even think about swap operations
             handleHighClick(event.changedTouches[0])
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
-
-            allowHover = false;
         });
 
         // Mouse events (for desktop support)
