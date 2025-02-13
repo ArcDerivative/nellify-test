@@ -404,7 +404,7 @@
           tileStack.shift()
         }
       }
-      
+
       swaySeed += 1
 
       if (flashSeed == 1) {
@@ -456,6 +456,11 @@
         }
       } else {
         flashSeed -= 1
+        for (let frame = 0; frame < lostFrames; frame++) {
+          if (flashSeed > 1) {
+            flashSeed -= 1
+          }
+        }
       }
     }
     
@@ -479,7 +484,13 @@
       });
       if (bombStack.length == 1) {
         bombStack.push([])
-      }bombStack.shift()
+      } bombStack.shift()
+      let lostFrames = Math.floor(lastDelta / (1000/60)) - 1 // Number of frames we should have expected in the interim
+      for (let frame = 0; frame < lostFrames; frame++) {
+        if (bombStack.length > 1) {
+          bombStack.shift()
+        }
+      }
     }
     let selectionLoopSeed //Handles an oscillating animation for selected weapon.
     let swaySeed = 0
@@ -879,7 +890,7 @@
     function handleKeyString(st) {
       alreadyMerged = false;
       alreadyMoved = false;
-      if (tileStack.length > 10) {return}
+      if (tileStack.length > 15) {return}
       switch (st) {
         case 'ArrowLeft':
           moveLeft();
