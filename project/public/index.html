@@ -13,11 +13,13 @@
   justify-content: center; /* Center vertically */
   height: 100vh; /* Ensure full height */
 }
-        html, body {
-          overscroll-behavior: none;
-  touch-action: none; /* Disables all default touch gestures */
-  overflow: hidden;  /* Prevents scrolling */
-  height: 100%; /* Ensure full-page coverage */
+    html, body {
+      font-family: 'BotW';
+
+      overscroll-behavior: none;
+      touch-action: none; /* Disables all default touch gestures */
+      overflow: hidden;  /* Prevents scrolling */
+      height: 100%; /* Ensure full-page coverage */
       height: 100%;
       margin: 0;
       display: flex;
@@ -52,6 +54,17 @@
             z-index: 9999; /* Always in front */
             background-color: rgba(0, 0, 0, 0);
             /* Allows clicks to pass through */
+        }
+@font-face {
+    font-family: 'BotW'; /* This is the name you will use in CSS */
+    src: url('Fonts/HyliaSerifBeta-Regular.woff2') format('woff2'); 
+    font-weight: normal;
+    font-style: normal;
+}
+.test-text {
+            font-size: 36px;
+            font-weight: normal;
+            color: white;
         }
   </style>
 </head>
@@ -219,9 +232,9 @@
 
     // Reset board and scaling, namely kills the board and gives rise to it in the guard
     function minimalReset() { 
-
-      const guardEl = document.getElementById('guard');
+      const guardEl = document.getElementById('guard')
       const boardEl = document.getElementById('board')
+      guardEl.innerHTML = ''
       boardEl.innerHTML = ''
       boardEl.style.position = "fixed";
       boardEl.style.left = `${guardEl.offsetLeft}px`; 
@@ -251,6 +264,8 @@
       minimalReset();
 
       drawBoard();
+      drawUpperUI();
+
       drawOverlay();
       drawTileStack();
       
@@ -285,6 +300,42 @@
           boardEl.appendChild(tileEl);
         }
       }
+    }
+
+    function drawUpperUI() {
+      //Vestigial function that now only draws the outline of the board.
+      const guardEl = document.getElementById('guard');
+
+      const textEl = document.createElement('div');
+      textEl.style.position = "fixed";
+
+      // Set dimensions (square)
+      textEl.style.width = `${400 * bigScale}px`;
+      textEl.style.height = `${100 * bigScale}px`;
+
+      // Center it exactly on its own center
+      textEl.style.left = `${guardEl.offsetLeft + guardEl.offsetWidth / 2}px`;
+      textEl.style.top = `${guardEl.offsetTop}px`;
+      textEl.style.transform = "translate(-50%, -50%)"; // Anchor on center
+      
+
+      // Ensure no extra background color interferes:
+      textEl.style.backgroundColor = "transparent";
+
+      // Center the text inside
+      textEl.style.display = "flex";
+      textEl.style.alignItems = "center";
+      textEl.style.justifyContent = "center";
+      textEl.style.textAlign = "center";
+      textEl.style.color = "white"; // Change text color for visibility
+      textEl.style.fontSize = `${18*bigScale}px`; // Adjust as needed
+
+      textEl.style.fontFamily = "'BotW',  sans-serif";
+
+      // Add text content
+      textEl.textContent = "Destination: Calabria";
+
+      guardEl.appendChild(textEl);
     }
 
     function drawOverlay() {
