@@ -120,9 +120,10 @@
     //bombStack.push([new BombGraphic(0,0,0)])
 
     let weapons = []
-    //weapons.push(new Weapon("two handed", 1))
-    //weapons.push(new Weapon("two handed", 2))
-    //weapons.push(new Weapon("two handed", 1))
+    weapons.push(new Weapon("two handed", 1))
+    weapons.push(new Weapon("sword", 2))
+    weapons.push(new Weapon("two handed", 1))
+    weapons.push(new Weapon("sword", 2))
     let weaponStack = []
     let weaponWidth, weaponBuffer
     //Max weapons wieldable at once
@@ -504,6 +505,7 @@
       const boardEl = document.getElementById('board');
       const stackEl = document.getElementById('stack');
       stackEl.innerHTML = '';
+      if ((weapons[weapons.length - 1].selected == "merge right")) {weapons[weapons.length - 1].selected = false}
       weaponStack[0].forEach(weap => {
           const weapEl = document.createElement('div');
          
@@ -562,11 +564,11 @@
           }
         }
       } else {
-        //In theory is redundant
-        //Move code to after swipe
         weaponStack.push(cookStack())
         weaponStack.shift()
-     }
+      }
+
+       
     }
 
     function printCurrentWeapon() {
@@ -667,7 +669,8 @@
         anyFuses = false;
         for (let i = 0; i < weapons.length - 1; i++) {
           if (weapons[i].type == weapons[i+1].type && weapons[i].level == weapons[i+1].level) {
-            for (let j = i+1; j < weapons.length; j++) {shifts[j] += 1}
+            let alreadyOffset = shifts[i+1]
+            for (let j = i+1; j < weapons.length; j++) {shifts[j+alreadyOffset] += 1}
             pulses[i] = 1
             weapons.splice(i+1,1)
             pulses.splice(i+1,1)
@@ -1080,7 +1083,7 @@
       }
       
       for (let i = 0; i < weapons.length; i++) {
-        if (mouseRow === 4) {
+        if (mouseRow === 4 && allowHover) {
           //fire weapon
           if (mouseCol > i - 0.5 && mouseCol <= i - 0.25) {weapons[i].selected = "merge left"; weapons[i-1].selected = "merge right"}
           else if (mouseCol > i - 0.25 && mouseCol <= i + 0.25) {weapons[i].selected = "fire"; currentIndex = i; currentWeapon = weapons[i]}
