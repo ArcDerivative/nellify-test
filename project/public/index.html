@@ -1160,7 +1160,8 @@
         overlay.addEventListener("touchend", (event) => {
             //spawnRandomTile();
 
-            allowHover = false;
+            //Now allowHover is basically always true
+            //allowHover = false;
             
             //Cannot treat every low touch as a click or else we double count selecting a weapon at the bottom... and don't even think about swap operations
             handleHighClick(event.changedTouches[0])
