@@ -1091,7 +1091,7 @@
     window.addEventListener('keydown', handleKey);
 
     let mouseDownDetected = false;
-    document.addEventListener("touchmove", (event) => {event.preventDefault(); handleSwipe(event)}, { passive: false });
+    document.addEventListener("touchmove", (event) => {event.preventDefault(); handleSwipe(event.touches[0])}, { passive: false });
 
     let startX = 0, startY = 0, startTime = 0;
         //let isTouch = false; // Tracks if we're in touch mode
