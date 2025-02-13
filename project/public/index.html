@@ -1099,14 +1099,15 @@
     let mouseCol
     //If for some reason you like to click outside of the grid when doing spear attacks or smth
     let allowSelectWeapon = true
-    document.addEventListener("mousemove", (event) => {allowHover = true; handleSwipe(event)});
+    document.addEventListener("pointermove", (_) => { allowHover = true; };
+    document.addEventListener("mousemove", (event) => { handleSwipe(event)});
     window.addEventListener('keydown', handleKey);
 
     let mouseDownDetected = false;
     document.addEventListener("touchmove", (event) => {event.preventDefault(); handleSwipe(event.touches[0])}, { passive: false });
 
     //allowHover is whether we can safely assume that the mouse is there even when it is released.
-    //True on mouse down, touch down, or mousemove.
+    //True on touch down, or mousemove.
     //False on touch release.
     let startX = 0, startY = 0, startTime = 0; allowHover = true;
         //let isTouch = false; // Tracks if we're in touch mode
@@ -1146,14 +1147,12 @@
             //handleStartAttackClick(event.touches[0])
             startTracking(event.touches[0].clientX, event.touches[0].clientY);
             handleSwipe(event.touches[0]);
-            debug = "TOUCH DOWN"
             allowHover = true
         });
 
         overlay.addEventListener("touchend", (event) => {
             //spawnRandomTile();
 
-            debug = "TOUCH ENDED"
             allowHover = false;
             
             //Cannot treat every low touch as a click or else we double count selecting a weapon at the bottom... and don't even think about swap operations
@@ -1161,7 +1160,8 @@
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
         });
 
-        // Mouse events (for desktop support). Exact same event is called by mobile sim, whether you want it to or not.
+        // Mouse events (for desktop support).
+        // Tapping simulates an immediate mousemove and mousedown, whether you want it to or not.
         document.addEventListener("mousedown", (event) => {
           if (!mouseDownDetected) {handleClick(event);}; mouseDownDetected = true;
             startTracking(event.clientX, event.clientY);
