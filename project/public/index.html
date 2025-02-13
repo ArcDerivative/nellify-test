@@ -1055,41 +1055,63 @@
 
     let mouseDownDetected = false;
     document.addEventListener('mousedown', () => {if (!mouseDownDetected) {handleClick(event);}; mouseDownDetected = true;}); 
-    document.addEventListener('mouseup', (event) => {mouseDownDetected = false;});
     document.addEventListener("touchmove", (event) => {event.preventDefault();}, { passive: false });
 
-    let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+    let startX = 0, startY = 0, startTime = 0;
+        //let isTouch = false; // Tracks if we're in touch mode
 
-    document.addEventListener("touchstart", (event) => {
-        if (event.touches.length !== 1) return; // Ignore multi-touch
-        touchStartX = event.touches[0].clientX;
-        touchStartY = event.touches[0].clientY;
-        touchStartTime = Date.now();
-    });
+        function startTracking(x, y) {
+            startX = x;
+            startY = y;
+            startTime = Date.now();
+        }
 
-    document.addEventListener("touchend", (event) => {
-        if (!touchStartTime) return; // Ensure a valid start
+        function endTracking(x, y) {
+            const deltaX = x - startX;
+            const deltaY = y - startY;
+            const elapsedTime = Date.now() - startTime;
 
-        const touchEndX = event.changedTouches[0].clientX;
-        const touchEndY = event.changedTouches[0].clientY;
-        const deltaX = touchEndX - touchStartX;
-        const deltaY = touchEndY - touchStartY;
-        const elapsedTime = Date.now() - touchStartTime;
+            const minDistance = 50;  // Minimum swipe distance in pixels
+            const maxDuration = 300; // Max time in ms for it to be considered a swipe
 
-        const minDistance = 10; // Minimum swipe distance (pixels)
-        const maxDuration = 300; // Max time in ms for it to be a swipe
+            if (elapsedTime > maxDuration) return; // Too slow, ignore
 
-        if (elapsedTime > maxDuration) return; // Too slow, ignore
-
-        if (true || Math.abs(deltaX) > minDistance || Math.abs(deltaY) > minDistance) {
-            // Determine direction
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                deltaX > 0 ? handleKeyString("ArrowRight") : handleKeyString("ArrowLeft");
-            } else {
-                deltaY > 0 ? handleKeyString("ArrowDown") : handleKeyString("ArrowUp");
+            if (Math.abs(deltaX) > minDistance || Math.abs(deltaY) > minDistance) {
+                // Determine closest cardinal direction
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    deltaX > 0 ? onSwipeRight() : onSwipeLeft();
+                } else {
+                    deltaY > 0 ? onSwipeDown() : onSwipeUp();
+                }
             }
         }
-    });
+
+        // Touch events
+        document.addEventListener("touchstart", (event) => {
+            //isTouch = true;
+            startTracking(event.touches[0].clientX, event.touches[0].clientY);
+        });
+
+        document.addEventListener("touchend", (event) => {
+            endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
+        });
+
+        // Mouse events (for desktop support)
+        document.addEventListener("mousedown", (event) => {
+          if (!mouseDownDetected) {handleClick(event);}; mouseDownDetected = true;
+            startTracking(event.clientX, event.clientY);
+        });
+
+        document.addEventListener("mouseup", (event) => {
+            mouseDownDetected = false;
+            endTracking(event.clientX, event.clientY);
+        });
+
+        // Swipe handlers
+        function onSwipeLeft()  { handleKeyString("ArrowLeft") }
+        function onSwipeRight() { handleKeyString("ArrowRight") }
+        function onSwipeUp()    { handleKeyString("ArrowUp") }
+        function onSwipeDown()  { handleKeyString("ArrowDown") }
 
     init();
   </script>
