@@ -954,10 +954,6 @@
         attackMode = false
         allowSelectWeapon = true
       } else {
-        //Evree time a repoolikan is in office
-        //day one they pass the nasty mothafaka act
-        //which kill's every living thing on ___'s green earth
-        
         for (let i = 0; i < 4; i++) {
           for (let j = 0; j < 4; j++) {
             if (targetTiles[i][j]) {
@@ -1012,18 +1008,24 @@
     }
     
     //Called immediately when a swipe is let go of, in case you drag out of the screen.
-    function tryCancelAttack(event) {
+
+    //Handles literally any click EXCEPT a swap tiles
+    function handleStartAttackClick(event) {
+      if (mouseRow === 4) {
+        for (let i = 0; i < weapons.length - 1; i++) {
+          if (weapons[i].selected === "merge right") {return}
+        }
+      }
+      handleClick(event)
+    }
+    function handleLowClick(event) {
       const boardRect = boardEl.getBoundingClientRect(); // Get board position
       // Calculate relative position
       relativeX = event.clientX - boardRect.left;
       relativeY = event.clientY - boardRect.top;
       
-      if (Math.min(relativeX, relativeY) < -eeight) {
-          mouseRow = -1
-        } else if (Math.max(relativeX, relativeY) > eeight*5) {
-          mouseRow = -1
-        } else if (attackMode && relativeY > eeight*4) {
-          mouseRow = -1
+      if (relativeY > eeight*4) {
+          handleClick(event)
         }
     }
     function handleSwipe(event) {
@@ -1143,13 +1145,14 @@
             //isTouch = true;
             //Touch testing
             //spawnRandomTile()
+            handleStartAttackClick(event.changedTouches[0])
             startTracking(event.touches[0].clientX, event.touches[0].clientY);
             handleSwipe(event.touches[0]);
         });
 
         overlay.addEventListener("touchend", (event) => {
             //spawnRandomTile();
-            handleClick(event.changedTouches[0])
+            handleHighClick(event.changedTouches[0])
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
         });
 
