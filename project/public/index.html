@@ -1118,7 +1118,7 @@
       //Also if weapons are being animated, do this as well
 
       let anyMerges = false
-      if (!attackMode) {currentWeapon = null; currentIndex = -1; for (let i = 0; i < weapons.length; i++) {
+      if (!attackMode) {currentWeapon = null; for (let i = 0; i < weapons.length; i++) {
         if (weapons[i].selected == "merge right") {
           anyMerges = true
         }
@@ -1188,7 +1188,7 @@
     }
   }
     function correctWeaponSelection() {
-
+    if (!attackMode) {currentIndex = -1;}
       for (let i = 0; i < weapons.length; i++) {
         if (mouseRow === 4 && allowHover) {
           //fire weapon
