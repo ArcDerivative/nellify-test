@@ -1011,6 +1011,21 @@
       
     }
     
+    //Called immediately when a swipe is let go of, in case you drag out of the screen.
+    function tryCancelAttack(event) {
+      const boardRect = boardEl.getBoundingClientRect(); // Get board position
+      // Calculate relative position
+      relativeX = event.clientX - boardRect.left;
+      relativeY = event.clientY - boardRect.top;
+      
+      if (Math.min(relativeX, relativeY) < -eeight) {
+          mouseRow = -1
+        } else if (Math.max(relativeX, relativeY) > eeight*5) {
+          mouseRow = -1
+        } else if (attackMode && relativeY > eeight*4) {
+          mouseRow = -1
+        }
+    }
     function handleSwipe(event) {
       targetTiles = [[false,false,false,false],[false,false,false,false],[false,false,false,false],[false,false,false,false]]
       const boardRect = boardEl.getBoundingClientRect(); // Get board position
@@ -1134,8 +1149,8 @@
 
         overlay.addEventListener("touchend", (event) => {
             //spawnRandomTile();
+            tryCancelAttack(event.changedTouches[0])
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
-            handleSwipe(event.touches[0]);
         });
 
         // Mouse events (for desktop support)
