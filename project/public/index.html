@@ -150,6 +150,7 @@
 
     //Q stands for cumulative. Presumably, c will stand for combo and h for hit.
     let qKills = 0
+    let qKillTurns = 0
     let score = 0
     let combo = 0
 
@@ -219,7 +220,7 @@
         const { r, c } = emptyPositions[Math.floor(Math.random() * emptyPositions.length)];
         //health is 10 for now
         //health should be 1 + qKills
-        grid[r][c] = new Tile (["Bokoblin","Moblin","Lizalfo"][Math.floor(Math.random() * 3)], 1, 1+qKills);
+        grid[r][c] = new Tile (["Bokoblin","Moblin","Lizalfo"][Math.floor(Math.random() * 3)], 1, 1+qKillTurns);
         //Assumes something is actually taking place on screen.
         while (tileStack.length < 20) {
           tileStack.push(tileStack[tileStack.length - 1].slice())
@@ -497,13 +498,14 @@
                 grid[i][j].thisCombo += grid[i][j].thisHit
                 grid[i][j].thisHit = 0
                 if (grid[i][j].health <= 0) {
+                  score += grid[i][j].maxHealth;
                   killQueue.push(grid[i][j]); grid[i][j] = null
                   //Sic. Always leave a blank frame
                   while(bombStack.length < 38) bombStack.push([])
                   for (let frame = 0; frame <= 37; frame++) bombStack[frame].push(new BombGraphic(j*eeight-(35*bigScale),i*eeight-(15*bigScale),frame))
                   qKills++;
-                }
-            }
+              }
+          }
         }
       }
     }
@@ -1054,11 +1056,12 @@
                   damage = grid[i][j].health - grid[i][j].thisHit
                 }
                 grid[i][j].thisHit += damage
+                score += damage * (combo+1)
               }
             }
           }
         }
-        anyKills ? combo++ : resetCombo()
+        if (anyKills) {combo++; qKillTurns++} else resetCombo()
         weapons[currentIndex] = null
         collapseAndStack();
         
@@ -1085,7 +1088,7 @@
             }
             [weapons[i], weapons[i+1]] = [weapons[i+1],weapons[i]]
             collapseAndStack();
-            spawnRandomTile();
+            if (!singleFuse) {spawnRandomTile()}
             break;
           } 
         }
