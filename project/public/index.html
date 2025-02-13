@@ -954,8 +954,10 @@
         attackMode = false
         allowSelectWeapon = true
         threatLoopSeed = 0
-        //Force hard cancel
-        //if (!allowHover) {for (let i = 0; i < weapons.length; i++)  weapons[i].selected = false}
+        //Force hard cancel on clickaway
+        //EXPOSED if: you can never swap, but everything looks beautiful, even when an enemy is hurt or killed.
+        //Or sometimes it doesn't
+        if (!allowHover) {for (let i = 0; i < weapons.length; i++)  weapons[i].selected = false}
       } else {
         for (let i = 0; i < 4; i++) {
           for (let j = 0; j < 4; j++) {
@@ -1009,8 +1011,7 @@
             break;
           } 
         }
-      }
-      
+      }  
     }
     
     //Called immediately when a swipe is let go of, in case you drag out of the screen.
@@ -1095,8 +1096,8 @@
             correctThreatCalculation()
           }
         }
-      correctWeaponSelection()
-    }
+      
+    } correctWeaponSelection();
   }
   function correctThreatCalculation() {
     let damage = nextSingleHit()
