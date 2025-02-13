@@ -43,12 +43,23 @@
   display: flex;
   flex-wrap: wrap;
 }
+#swipeOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999; /* Always in front */
+            pointer-events: none; /* Allows clicks to pass through */
+        }
   </style>
 </head>
 <body>
   <div id="guard"></div>
   <div id="board"></div>
   <div id="stack"></div>
+
+  <div id="swipeOverlay"></div>
   
   <script>
     //convention e.g. for tile is that tile contains every relevant property for gameplay.
@@ -460,7 +471,6 @@
         bombStack.push([])
       }bombStack.shift()
     }
-
     let selectionLoopSeed //Handles an oscillating animation for selected weapon.
     let swaySeed = 0
     let flashSeed = 0 //10 means an attack just happened
@@ -868,7 +878,7 @@
           moveDown();
           break;
       }
-      if (true || alreadyMoved) {
+      if (alreadyMoved) {
         introduceQueuedWeapons();
         spawnRandomTile();
       } 
@@ -1085,13 +1095,14 @@
             }
         }
 
+        const overlay = document.getElementById("swipeOverlay")
         // Touch events
-        document.addEventListener("touchstart", (event) => {
+        overlay.addEventListener("touchstart", (event) => {
             //isTouch = true;
             startTracking(event.touches[0].clientX, event.touches[0].clientY);
         });
 
-        document.addEventListener("touchend", (event) => {
+        overlay.addEventListener("touchend", (event) => {
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
         });
 
