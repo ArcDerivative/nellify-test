@@ -256,7 +256,7 @@
       drawWeaponStack();
       drawBombStack();
       //drawDebug();
-      mousePosition.textContent = `current`;
+      mousePosition.textContent = `${allowHover}`;
     }
 
     function drawBoard() {
@@ -1088,7 +1088,7 @@
     mousePosition.style.background = "rgba(0,0,0,0.7)";
     mousePosition.style.color = "white";
     mousePosition.style.padding = "5px";
-    mousePosition.style.fontSize = "14px";
+    mousePosition.style.fontSize = "72px";
     document.body.appendChild(mousePosition);
 
     const boardEl = document.getElementById('board'); // Ensure the board element exists
