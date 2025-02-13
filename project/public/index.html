@@ -987,7 +987,10 @@
       attackMode = false
       allowSelectWeapon = true
      }
+     let lambdaHover = allowHover
+     allowHover = true;
      handleSwipe(e)
+     allowHover = lambdaHover
      //Attempt swap
       if (mouseRow === 4) {
         for (let i = 0; i < weapons.length - 1; i++) {
