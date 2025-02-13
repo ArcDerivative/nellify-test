@@ -1161,10 +1161,8 @@
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
         });
 
-        // Mouse events (for desktop support), but seemingly triggered by isolated taps as well
+        // Mouse events (for desktop support). Exact same event is called by mobile sim, whether you want it to or not.
         document.addEventListener("mousedown", (event) => {
-          debug = "MOUSE DOWN"
-          allowHover = true
           if (!mouseDownDetected) {handleClick(event);}; mouseDownDetected = true;
             startTracking(event.clientX, event.clientY);
         });
