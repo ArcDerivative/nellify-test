@@ -210,6 +210,7 @@
     }
 
     let lastFrameTime = 0; let lastDelta = 0;
+    
     function gameLoop(currentTime) {
       if (currentTime - lastFrameTime >= 1000/60) {
         lastDelta = currentTime - lastFrameTime
@@ -419,6 +420,19 @@
     }
 
     smallText(guardEl.offsetLeft + guardEl.offsetWidth / 4, guardEl.offsetTop-10*bigScale, `High Score: ${localStorage.getItem("highScore")}`)
+
+    smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+465*bigScale, `Arrow keys / swipe controls to combine matching enemies.`)
+    
+    if (localStorage.getItem("seenWeapon")) {
+      let text = "Tap weapon to use."
+      if (localStorage.getItem("seenWeapons")) {
+        text = `${text} Tap between two weapons to swap.`
+      }
+      smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+480*bigScale, text)
+      if (localStorage.getItem("seenFuse")) {
+        smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+495*bigScale, `Two matching weapons will combine if adjacent.`)
+      }
+    }
   }
 
     function resetCombo() {combo = 0;
@@ -800,6 +814,11 @@
       for (let i = 0; i < weapons.length; i++) {
           cook.push(new WeaponGraphic(i*(weaponWidth+weaponBuffer)+(weaponBuffer/2),0,weapons[i]))
         }
+      if (weapons.length > 0) {
+        localStorage.setItem("seenWeapon",true)
+      } if (weapons.length > 1) {
+        localStorage.setItem("seenWeapons",true)
+      }
       return cook
     }
 
@@ -877,6 +896,7 @@
         anyFuses = false;
         for (let i = 0; i < weapons.length - 1; i++) {
           if (weapons[i].type == weapons[i+1].type && weapons[i].level == weapons[i+1].level) {
+            localStorage.setItem("seenFuse",true)
             let alreadyOffset = shifts[i+1]
             for (let j = i+1; j < weapons.length; j++) {shifts[j+alreadyOffset] += 1}
             pulses[i] = 1
