@@ -1099,7 +1099,7 @@
     let mouseCol
     //If for some reason you like to click outside of the grid when doing spear attacks or smth
     let allowSelectWeapon = true
-    document.addEventListener("mousemove", (event) => {debug = "MOUSE MOVE"; allowHover = true; handleSwipe(event)});
+    document.addEventListener("mousemove", (event) => {allowHover = true; handleSwipe(event)});
     window.addEventListener('keydown', handleKey);
 
     let mouseDownDetected = false;
