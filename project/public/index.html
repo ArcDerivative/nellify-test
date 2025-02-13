@@ -359,6 +359,7 @@
         }
       scoreShow(0.25,`Score: ${score}`)
 
+      if (combo === 0) {comboSize = 1} else {
       // 0 white, 3 yellow, 6 red, 10 dark red
       let color = {0:"#FFFFFF",
         1:"#FFDDAA",
@@ -374,6 +375,7 @@
         }[Math.min(combo,10)]
       scoreShow(0.75,`Killstreak: ${combo}`,color,comboSize)
       comboSize **= 0.99
+      }
 
       //scoreShow(0.75,`Score: ${score} | Combo: ${combo}`)
 
@@ -414,8 +416,8 @@
         let color = {1:"Red", 2:"Blue", 3:"Black", 4:"Silver", 5:"Golden"}[currentAnimal.level]
         if (currentAnimal.type === "Lizalfo" && color == "Red") color = "Green"
         let text = `${color} ${currentAnimal.type} (${currentAnimal.health}hp/${currentAnimal.maxHealth})`
-        if (currentAnimal.thisCombo > 0) {
-          text = `${text} <this killstreak: ${currentAnimal.thisCombo}hp>`
+        if (combo > 0 && currentAnimal.thisCombo > 0) {
+            text = `${text} <this killstreak: ${currentAnimal.thisCombo}hp>`
          }
         if (currentAnimal.canHoverTick == 0) smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop + 30*bigScale, text)
     }
