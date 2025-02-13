@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>爆杀</title>
+  <title>Kill Animations</title>
   <style>
     body {
   font-family: sans-serif;
@@ -231,8 +231,8 @@
       boardEl.style.width = `${guardEl.clientWidth}px`;
 
       //document.getElementById('board').style.backgroundColor = 'red';
-      if (attackMode) {document.body.style.background = "#FFb0b0"}
-      else {document.body.style.background = "#444"}
+      if (attackMode) {document.body.style.background =  "#bb4444"}//"#882222"}
+      else {document.body.style.background = "#000"}
       const boardWidth = boardEl.clientWidth;
       const boardHeight = boardEl.clientHeight;
       tileSize = Math.min(boardWidth / size, boardHeight / size); 
@@ -257,7 +257,6 @@
       drawWeaponStack();
       drawBombStack();
       //drawDebug();
-      mousePosition.textContent = `${allowHover} ${debug}`;
     }
 
     function drawBoard() {
@@ -302,7 +301,7 @@
           tileEl.style.width = `${eeight}px`;  // Set square width
           tileEl.style.height = `${eeight}px`;
           
-          if (targetTiles[r][c]) tileEl.style.background ="rgba(255, 0, 0, 0.5)";
+          if (targetTiles[r][c]) tileEl.style.background ="rgba(128, 0, 0, 0.5)";
           boardEl.appendChild(tileEl);
         }
       }
@@ -401,7 +400,7 @@
             health(20,10,1,"white")
             health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,1,"red")
             health(Math.ceil((tile.tile.health - tile.tile.thisThreat)/tile.tile.maxHealth * 20),100,1,"red")
-            health(Math.ceil((tile.tile.health)/tile.tile.maxHealth * 20),0,(Math.cos(threatLoopSeed/20)**2)/2 + 0.25,"white")
+            health(Math.ceil((tile.tile.health)/tile.tile.maxHealth * 20),0,(Math.cos(threatLoopSeed/20)**2)/4 + 0.5,"white")
             health(Math.ceil((tile.tile.health - tile.tile.thisThreat)/tile.tile.maxHealth * 20) - 1,100,1,"red")
           }
           
@@ -1136,15 +1135,6 @@
         }
       }
     }
-    const mousePosition = document.createElement("div");
-    mousePosition.style.position = "fixed";
-    mousePosition.style.top = "10px";
-    mousePosition.style.left = "10px";
-    mousePosition.style.background = "rgba(0,0,0,0.7)";
-    mousePosition.style.color = "white";
-    mousePosition.style.padding = "5px";
-    mousePosition.style.fontSize = "72px";
-    document.body.appendChild(mousePosition);
 
     const boardEl = document.getElementById('board'); // Ensure the board element exists
 
