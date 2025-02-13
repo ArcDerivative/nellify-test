@@ -112,7 +112,7 @@
     }
 
     class BombGraphic {
-      constructor(x, y, frame) {this.x = x; this.y = y; this.frame = frame}
+      constructor(x, y, frame, type = "Explosion") {this.x = x; this.y = y; this.frame = frame, this.type = type}
     }
 
     let animalsToWeapons = { "Bokoblin": "sword", "Moblin": "two handed", "Lizalfo": "spear"}
@@ -188,6 +188,7 @@
       cacheFrom("Animations/Hearts/white/",1,20)
 
       cacheFrom("Animations/Explosion/",0,37)
+      cacheFrom("Animations/TK explosion/",0,38)
 
       minimalReset();
       spawnRandomTile();
@@ -561,7 +562,7 @@
         // Set the dimensions (square)
         tileEl.style.width = `${150*bigScale}px`;
         tileEl.style.height = `${150*bigScale}px`;
-        tileEl.style.backgroundImage = `url('Animations/Explosion/${bomb.frame}.png')`;
+        tileEl.style.backgroundImage = `url('Animations/${bomb.type}/${bomb.frame}.png')`;
         tileEl.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
         tileEl.style.backgroundColor = "transparent";
 
@@ -711,27 +712,35 @@
             j -= 1
             alreadyMoved = true
           }
-          if (j > 0 && !alreadyMerged && row[j-1].type === row[j].type && row[j-1].level === row[j].level) {
+          //row[j-1].type === row[j].type
+          if (j > 0 && !alreadyMerged && row[j-1].type === row[j].type &&row[j-1].level === row[j].level) {
             shifts[i] += 1
-            pulses[j-1] = 1
-            if (weapons.length + weaponQueue.length < weaponCap) {
-              weaponQueue.push(new Weapon(animalsToWeapons[row[j].type],1))
+            if (row[j-1].level >= 5) {
+              pulses[j-1] = 2
+              if (weapons.length + weaponQueue.length < weaponCap) weaponQueue.push(new Weapon("spear",5))
+              if (weapons.length + weaponQueue.length < weaponCap) weaponQueue.push(new Weapon("sword",5))
+              if (weapons.length + weaponQueue.length < weaponCap) weaponQueue.push(new Weapon("two handed",5))
+              row[j-1] = null
+            } else {
+              pulses[j-1] = 1
+              if (weapons.length + weaponQueue.length < weaponCap) {
+                weaponQueue.push(new Weapon(animalsToWeapons[row[j].type],1))
+              }
+              let nextHealth = row[j].health + row[j-1].health
+              let nextMax = row[j].maxHealth + row[j-1].maxHealth
+              row[j-1] = {...row[j]}
+              row[j-1].level += 1
+              row[j-1].health = nextHealth
+              row[j-1].maxHealth = nextMax
             }
-            let nextHealth = row[j].health + row[j-1].health
-            let nextMax = row[j].maxHealth + row[j-1].maxHealth
-            row[j-1] = {...row[j]}
-            row[j-1].level += 1
-            row[j-1].health = nextHealth
-            row[j-1].maxHealth = nextMax
-            row[j] = null
-            alreadyMerged = true
-            alreadyMoved = true
+              row[j] = null
+              alreadyMerged = true
+              alreadyMoved = true
           }
         }
       }
       return [row,shifts,pulses];
     }
-
     function collapseAndStack() {
       //Also takes care of the animations.
       //Does not bat an eye if some weapons are null.
@@ -813,12 +822,17 @@
         grid[r] = full[0];
         //Degenerate no op if nothing merges. No worries, as next tile animation will overwrite.
         for (let c = 0; c < size; c++) {
-          if (grid[r][c] != null) {
+          if (grid[r][c] != null || full[2][c] == 2) {
             for (let i = swellDelay; i < 10+swellDelay; i++) {
-              if (i >= 10 || full[2][c] == 1) {
+              if (i >= 10 || full[2][c] >= 1) {
                 let s = 1
                 if (full[2][c] == 1) {s += (5 - Math.abs(i - swellDelay - 5))/20}
-                tileStack[i].push(new TileGraphic(c*eeight,r*eeight,grid[r][c],s))
+                if (full[2][c] == 2) {
+                  while(bombStack.length < 39 + swellDelay) bombStack.push([])
+                  for (let frame = 0; frame <= 38; frame++)
+                    bombStack[frame+swellDelay].push(new BombGraphic(c*eeight-(35*bigScale),r*eeight-(15*bigScale),frame, "TK explosion"))
+                }
+                else tileStack[i].push(new TileGraphic(c*eeight,r*eeight,grid[r][c],s))
               }
             }
           }
@@ -852,12 +866,17 @@
         }
         grid[r] = full[0].reverse(); 
         for (let c = 0; c < size; c++) {
-          if (grid[r][c] != null) {
+          if (grid[r][c] != null || full[2][3-c] == 2) {
             for (let i = swellDelay; i < swellDelay + 10; i++) {
-              if (i >= 10 || full[2][3-c] == 1) {
+              if (i >= 10 || full[2][3-c] >= 1) {
                 let s = 1
-                if (full[2][3-c] == 1) {s += (5 - Math.abs(i - 5 - swellDelay))/20}
-                tileStack[i].push(new TileGraphic(c*eeight,r*eeight,grid[r][c],s))
+                if (full[2][3-c] == 1) {s += (5 - Math.abs(i - swellDelay - 5))/20}
+                if (full[2][3-c] == 2) {
+                  while(bombStack.length < 39 + swellDelay) bombStack.push([])
+                  for (let frame = 0; frame <= 38; frame++)
+                    bombStack[frame+swellDelay].push(new BombGraphic(c*eeight-(35*bigScale),r*eeight-(15*bigScale),frame, "TK explosion"))
+                }
+                else tileStack[i].push(new TileGraphic(c*eeight,r*eeight,grid[r][c],s))
               }
             }
           }
@@ -894,12 +913,17 @@
         }
 
         for (let r = 0; r < size; r++) {
-          if (grid[r][c] != null) {
+          if (grid[r][c] != null || full[2][r] == 2) {
             for (let i = swellDelay; i < swellDelay + 10; i++) {
-              if (i >= 10 || full[2][r] == 1) {
+              if (i >= 10 || full[2][r] >= 1) {
                 let s = 1
                 if (full[2][r] == 1) {s += (5 - Math.abs(i - swellDelay - 5))/20}
-                tileStack[i].push(new TileGraphic(c*eeight,r*eeight,grid[r][c],s))
+                if (full[2][r] == 2) {
+                  while(bombStack.length < 39 + swellDelay) bombStack.push([])
+                  for (let frame = 0; frame <= 38; frame++)
+                    bombStack[frame+swellDelay].push(new BombGraphic(c*eeight-(35*bigScale),r*eeight-(15*bigScale),frame, "TK explosion"))
+                }
+                else tileStack[i].push(new TileGraphic(c*eeight,r*eeight,grid[r][c],s))
               }
             }
           }
@@ -934,12 +958,17 @@
           grid[r][c] = full[0][3-r];
         }
         for (let r = 0; r < size; r++) {
-          if (grid[r][c] != null) {
+          if (grid[r][c] != null || full[2][3-r] == 2) {
             for (let i = swellDelay; i < swellDelay+10; i++) {
-              if (i >= 10 || full[2][3-r] == 1) {
+              if (i >= 10 || full[2][3-r] >= 1) {
                 let s = 1
                 if (full[2][3-r] == 1) {s += (5 - Math.abs(i - swellDelay - 5))/20}
-                tileStack[i].push(new TileGraphic(c*eeight,r*eeight,grid[r][c],s))
+                if (full[2][3-r] == 2) {
+                  while(bombStack.length < 39 + swellDelay) bombStack.push([])
+                  for (let frame = 0; frame <= 38; frame++)
+                    bombStack[frame+swellDelay].push(new BombGraphic(c*eeight-(35*bigScale),r*eeight-(15*bigScale),frame, "TK explosion"))
+                }
+                else tileStack[i].push(new TileGraphic(c*eeight,r*eeight,grid[r][c],s))
               }
             }
           }
