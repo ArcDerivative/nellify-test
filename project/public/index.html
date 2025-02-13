@@ -1107,7 +1107,7 @@
             const deltaY = y - startY;
             const elapsedTime = Date.now() - startTime;
 
-            const minDistance = 100;  // Minimum swipe distance in pixels
+            const minDistance = 50;  // Minimum swipe distance in pixels
             const maxDuration = 300; // Max time in ms for it to be considered a swipe
 
             if (elapsedTime > maxDuration) return; // Too slow, ignore
