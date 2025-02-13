@@ -506,6 +506,11 @@
       const stackEl = document.getElementById('stack');
       stackEl.innerHTML = '';
       if ((weapons[weapons.length - 1].selected == "merge right")) {weapons[weapons.length - 1].selected = false}
+      if (!(attackMode || allowHover)) {for (let i = 0; i < weapons.length; i++) {
+        weapons[i].selected = false
+      }
+    }
+
       weaponStack[0].forEach(weap => {
           const weapEl = document.createElement('div');
          
@@ -559,7 +564,7 @@
         let lostFrames = Math.floor(lastDelta / (1000/60)) - 1 // Number of frames we should have expected in the interim
         for (let frame = 0; frame < lostFrames; frame++) {
           if (weaponStack.length > 1) {
-            //selectionLoopSeed++ if lag is sufficient
+            selectionLoopSeed++ //if lag is sufficient
             weaponStack.shift()
           }
         }
@@ -1176,7 +1181,6 @@
             //Cannot treat every low touch as a click or else we double count selecting a weapon at the bottom... and don't even think about swap operations
             handleHighClick(event.changedTouches[0])
             endTracking(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
-
             allowHover = false;
         });
 
