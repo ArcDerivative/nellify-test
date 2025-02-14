@@ -203,6 +203,9 @@
       cacheFrom("Animations/Weapons/spear/",0,6)
       cacheFrom("Animations/Weapons/sword/",0,6)
       cacheFrom("Animations/Weapons/two handed/",0,6)
+
+      cacheFrom("Animations/Threat Level/",1,5)
+      cacheFrom("Animations/Threat Backing/",1,5)
       }
     }
     function init() {
@@ -759,7 +762,10 @@
           stackEl.appendChild(weapEl);
          
           weaponimal(`url('Animations/Weapons/${weap.weapon.type}/${weap.weapon.level}.png')`)
-
+          
+          weaponimal(`url('Animations/Threat Backing/${weap.weapon.level}.png')`,Math.sin( weap.weapon.level * Date.now()/1000)**2 / 2 + 0.25)
+          weaponimal(`url('Animations/Threat Level/${weap.weapon.level}.png')`)
+         
           if (weap.weapon.flash > 0) {
             weaponimal(`url('Animations/Weapons/${weap.weapon.type}/6.png')`,(weap.weapon.flash)/90)
 
@@ -795,7 +801,7 @@
             hoverEl.style.justifyContent = "center";
             hoverEl.style.textAlign = "center";
             hoverEl.style.color = "white"; // Change text color for visibility
-            hoverEl.style.fontSize = `${9*bigScale}px`; // Adjust as needed
+            hoverEl.style.fontSize = `${12*bigScale}px`; // Adjust as needed
 
             hoverEl.style.fontFamily = "'BotW',  sans-serif";
             hoverEl.textContent = printCurrentWeapon()
