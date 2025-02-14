@@ -104,6 +104,7 @@
         //Conscious decision not to make this null, null implies lack of object reference.
         //Similar conscious decision not to make this assignable on construction.
         this.selected = false
+        this.flash = 0
       }
     }
 
@@ -199,9 +200,9 @@
       cacheFrom("Animations/Explosion/",0,37)
       cacheFrom("Animations/TK explosion/",0,38)
 
-      cacheFrom("Animations/Weapons/spear/",0,5)
-      cacheFrom("Animations/Weapons/sword/",0,5)
-      cacheFrom("Animations/Weapons/two handed/",0,5)
+      cacheFrom("Animations/Weapons/spear/",0,6)
+      cacheFrom("Animations/Weapons/sword/",0,6)
+      cacheFrom("Animations/Weapons/two handed/",0,6)
       }
     }
     function init() {
@@ -499,21 +500,13 @@
       tileStack[0].forEach(tile => {
         const tileEl = document.createElement('div');
 
-        // Position the div as before
         tileEl.style.position = "fixed";
         tileEl.style.left = `${boardEl.offsetLeft + tile.x + (1 - tile.size) * eighty/2}px`;
         tileEl.style.top = `${boardEl.offsetTop + tile.y + (1 - tile.size) * eighty/2}px`;
-
-        // Set the dimensions (square)
         tileEl.style.width = `${tile.size * eighty}px`;
         tileEl.style.height = `${tile.size * eighty}px`;
-        //tilePhrase= 'bokoTile.png'
-        // Set the tile image as the background
-        //tileEl.style.backgroundImage = `url('${tile.tile.type.slice(0, 4).toLowerCase()}Tile.png')`;
         tileEl.style.backgroundImage = `url('Animations/Tiles/${tile.tile.type}.png')`;
-
-        //tileEl.style.backgroundImage = `url('Animations/Tiles/Empty.png')`;
-        tileEl.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
+        tileEl.style.backgroundSize = "100% 100%";
         tileEl.style.backgroundColor = "transparent";
 
         function animal(alpha, path) {
@@ -534,6 +527,7 @@
         if (swayFrame == 4) swayFrame = 2
 
         animal(1, `url('Animations/Animals/${tile.tile.type}/${tile.tile.level}/${swayFrame}.png')`)
+        
         if (flashSeed > 0 && tile.tile.thisHit > 0) {
           animal(flashSeed/10 * 0.75, `url('Animations/Animal Masks/${tile.tile.type}/${tile.tile.level}/${swayFrame}.png')`)
         }
@@ -657,6 +651,7 @@
                   if (weapons[weap].type === buffType && weapons[weap].level === lowestRank) {
                     //TODO: animate
                     weapons[weap].level += 1
+                    weapons[weap].flash = 60
                     break;
                   }
                 }
@@ -738,55 +733,46 @@
             weapEl.style.top = `${boardEl.offsetTop + eeight * 4 + weap.y + (1-actualSize)*(weaponWidth/2)}px`;  
             weapEl.style.width = `${weaponWidth * actualSize * weap.shear}px`;  // Set square width
             weapEl.style.height = `${weaponWidth * actualSize}px`; // Set square height
-          
 
-          // Center text inside the square
-          /*
-          weapEl.style.display = "flex";  
-          weapEl.style.alignItems = "center";  
-          weapEl.style.justifyContent = "center";  
-          weapEl.style.color = "black"; // Makes text visible on dark red
-          weapEl.style.fontSize = `${weaponWidth*actualSize*weap.shear*0.66}px`;  
-          weapEl.style.fontWeight = "bold";
-          //REPLACE
-          weapEl.style.fontFamily = "sans-serif";*/
 
           weapEl.style.backgroundImage = `url('Animations/Weapons/${weap.weapon.type}/0.png')`;
           weapEl.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
-          weapEl.style.backgroundRepeat = "no-repeat";
+          //weapEl.style.backgroundRepeat = "no-repeat";
           // Ensure no extra background color interferes:
           weapEl.style.backgroundColor = "transparent";
 
-          function weaponimal(path) {
+          function weaponimal(path,opacity=1) {
             const extraImage = document.createElement('div');
-            extraImage.style.position = "relative"
+            extraImage.style.position = "absolute"
             extraImage.style.left = weapEl.offsetLeft
-            extraImage.style.top = weapEl.offsetTop - 1*bigScale
+            extraImage.style.top = weapEl.offsetTop // - 1*bigScale
             extraImage.style.width = "100%";   // Adjust to control scale relative to tileEl
             extraImage.style.height = "100%";
 
             extraImage.style.backgroundImage = path;
             extraImage.style.backgroundSize = "100% 100%";  // stretches the image to fill the div
-            extraImage.opacity = 1
+            extraImage.style.opacity = opacity
             
             weapEl.appendChild(extraImage);
           }
 
-          
-/*
-          switch (weap.weapon.type) {
-            case "spear":
-              weapEl.style.background = "#8B5A2B"; break
-            case "sword":
-              weapEl.style.background = "#B0C4DE"; break
-            case "two handed":
-              weapEl.style.background = "#B8860B";break
-            default:
-              weapEl.style.background = "#000000";break
-          }*/
           stackEl.appendChild(weapEl);
          
           weaponimal(`url('Animations/Weapons/${weap.weapon.type}/${weap.weapon.level}.png')`)
+
+          if (weap.weapon.flash > 0) {
+            weaponimal(`url('Animations/Weapons/${weap.weapon.type}/6.png')`,(weap.weapon.flash)/90)
+
+            weap.weapon.flash--
+
+            let lostFrames = Math.floor(lastDelta / (1000/60)) - 1 // Number of frames we should have expected in the interim
+              for (let frame = 0; frame < lostFrames; frame++) {
+                if (weap.weapon.flash > 0) {
+                weap.weapon.flash--
+              }
+            }
+            
+          }
           if (weap.weapon === currentWeapon) {
             hoverEl = document.createElement('div');
             hoverEl.style.position = "fixed";
@@ -809,7 +795,7 @@
             hoverEl.style.justifyContent = "center";
             hoverEl.style.textAlign = "center";
             hoverEl.style.color = "white"; // Change text color for visibility
-            hoverEl.style.fontSize = `${12*bigScale}px`; // Adjust as needed
+            hoverEl.style.fontSize = `${9*bigScale}px`; // Adjust as needed
 
             hoverEl.style.fontFamily = "'BotW',  sans-serif";
             hoverEl.textContent = printCurrentWeapon()
@@ -838,7 +824,24 @@
       if (currentWeapon === null) {
         return "bare hands??"
       }
-      return `level ${currentWeapon.level} ${currentWeapon.type}`
+      let currentName = {"1 spear":"Boko Spear",
+      "2 spear":"Spiked Boko Spear",
+      "3 spear":"Spiked Moblin Spear",
+      "4 spear":"Dragonbone Boko Spear",
+      "5 spear":"Dragonbone Moblin Spear",
+
+      "1 sword":"Traveler's Sword",
+      "2 sword":"Soldier's Broadsword",
+      "3 sword":"Knight's Broadsword",
+      "4 sword":"Royal Broadsword",
+      "5 sword":"Royal Guard's Sword",
+
+      "1 two handed":"Iron Sledgehammer",
+      "2 two handed":"Stone Smasher",
+      "3 two handed":"Lynel Crusher",
+      "4 two handed":"Mighty Lynel Crusher",
+      "5 two handed":"Savage Lynel Crusher"}[`${currentWeapon.level} ${currentWeapon.type}`]
+      return `${currentName} (${nextSingleHit()}dmg)`
     }
     function drawDebug() {
       const boardEl = document.getElementById('board');
@@ -1210,8 +1213,11 @@
       }
     }
 
-    function nextSingleHit() {
-      return 2 ** (currentWeapon.level-1) + (currentWeapon.level-1)
+    function nextSingleHit(weapon) {
+      let baseDamage = 1
+      for (let i = 1; i < currentWeapon.level; i++)
+        {baseDamage *= 2; baseDamage += 1}
+      return baseDamage
     }
     function introduceQueuedWeapons() {
     let lastWeapon = null
