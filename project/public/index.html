@@ -141,10 +141,7 @@
     //bombStack.push([new BombGraphic(0,0,0)])
 
     let weapons = []
-    /*weapons.push(new Weapon("two handed", 1))
-    weapons.push(new Weapon("sword", 2))
-    weapons.push(new Weapon("two handed", 1))
-    weapons.push(new Weapon("sword", 2))*/
+
     let weaponStack = []
     let weaponWidth, weaponBuffer
     //Max weapons wieldable at once
@@ -670,8 +667,6 @@
             weaponQueue = []
             for (let kill = 0; kill < killQueue.length; kill++) {
               let buffType = animalsToWeapons[killQueue[kill].type]
-              let map = weapons.filter(weap => weap.type === buffType).map(weap => weap.level)
-              debug = map
               let lowestRank = trueMin(weapons.filter(weap => weap.type === buffType).map(weap => weap.level))
               //If NO weapons are of the buffType, queue a new one at the beginning.
               if (lowestRank === 0 || lowestRank === 5 || lowestRank === Infinity) {
@@ -981,23 +976,25 @@
       
       let oldWeapons = weapons.slice()
       //Simple shift if anything is null
+      //Add shifts ONLY
       for (let i = 0; i < weapons.length; i++) {
           if (weapons[i] === null) {
-            for (let j = i+1; j < weapons.length; j++) {shifts[j] += 1}
+            for (let j = i+1; j < weapons.length; j++) {shifts[j + (shifts.length - weapons.length)] += 1}
             weapons.splice(i,1)
             pulses.splice(i,1)
             pulses.push(0)
           }
       }
+
+      //Simple shifts ONLY
       let anyFuses = true
       singleFuse = false
       while (anyFuses) {
         anyFuses = false;
         for (let i = 0; i < weapons.length - 1; i++) {
-          if (weapons[i].type == weapons[i+1].type && weapons[i].level == weapons[i+1].level) {
+          if (weapons[i].type == weapons[i+1].type && weapons[i].level == weapons[i+1].level && weapons[i].level < 5) {
             localStorage.setItem("seenFuse",true)
-            let alreadyOffset = shifts[i+1]
-            for (let j = i+1; j < weapons.length; j++) {shifts[j+alreadyOffset] += 1}
+            for (let j = i+1; j < weapons.length; j++) {shifts[j + (shifts.length - weapons.length)] += 1}
             pulses[i] = 1
             weapons.splice(i+1,1)
             pulses.splice(i+1,1)
@@ -1010,6 +1007,7 @@
           }
         }
       }
+
       if (weapons.length < oldWeapons.length) {
         //Intended to be a degenerate no-op
         for (let i = 0; i < 10 + swellDelay; i++) {weaponStack.push([])}
