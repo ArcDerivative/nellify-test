@@ -1449,7 +1449,7 @@
     }
   }
     function correctWeaponSelection() {
-    //if (!attackMode) {currentIndex = -1;}
+      if (weapons.length > 0 && weapons[weapons.length-1].selected === "merge right") {weapons[weapons.length-1].selected = false}
       for (let i = 0; i < weapons.length; i++) {
         if (mouseRow === 4 && allowHover) {
           //fire weapon
