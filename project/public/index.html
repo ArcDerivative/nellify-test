@@ -611,7 +611,7 @@
         if (appendCooldown > 0) appendCooldown--
       }
 
-      if (appendCooldown === 0) {score += appendToScore; appendToScore = 0}
+      if (appendCooldown === 0) {score += appendToScore; appendToScore = 0; if (score > localStorage.getItem("highScore")) localStorage.setItem("highScore",score)}
 
       swaySeed += 1
 
