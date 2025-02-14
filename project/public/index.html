@@ -1199,7 +1199,6 @@
     let killQueue = []
     // Handle arrow key presses
     function handleKey(e) {
-      cacheEverything()
       if (attackMode){
         attackMode = false;
         handleSwipe(e);
@@ -1449,7 +1448,7 @@
     }
   }
     function correctWeaponSelection() {
-    if (!attackMode) {currentIndex = -1;}
+    //if (!attackMode) {currentIndex = -1;}
       for (let i = 0; i < weapons.length; i++) {
         if (mouseRow === 4 && allowHover) {
           //fire weapon
