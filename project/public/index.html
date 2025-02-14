@@ -189,28 +189,30 @@
 
     function cacheEverything() {
       if (!didWeCache) {
+        didWeCache = true
         cacheAnimal("Animations/Animals/Bokoblin/")
-      cacheAnimal("Animations/Animals/Moblin/")
-      cacheAnimal("Animations/Animals/Lizalfo/")
-      cacheAnimal("Animations/Animal Masks/Bokoblin/")
-      cacheAnimal("Animations/Animal Masks/Moblin/")
-      cacheAnimal("Animations/Animal Masks/Lizalfo/")
+        cacheAnimal("Animations/Animals/Moblin/")
+        cacheAnimal("Animations/Animals/Lizalfo/")
+        cacheAnimal("Animations/Animal Masks/Bokoblin/")
+        cacheAnimal("Animations/Animal Masks/Moblin/")
+        cacheAnimal("Animations/Animal Masks/Lizalfo/")
 
-      cacheFrom("Animations/Hearts/red/",1,20)
-      cacheFrom("Animations/Hearts/white/",1,20)
+        cacheFrom("Animations/Hearts/red/",1,20)
+        cacheFrom("Animations/Hearts/white/",1,20)
 
-      cacheFrom("Animations/Explosion/",0,37)
-      cacheFrom("Animations/TK explosion/",0,38)
+        cacheFrom("Animations/Explosion/",0,37)
+        cacheFrom("Animations/TK explosion/",0,38)
 
-      cacheFrom("Animations/Weapons/spear/",0,6)
-      cacheFrom("Animations/Weapons/sword/",0,6)
-      cacheFrom("Animations/Weapons/two handed/",0,6)
+        cacheFrom("Animations/Weapons/spear/",0,6)
+        cacheFrom("Animations/Weapons/sword/",0,6)
+        cacheFrom("Animations/Weapons/two handed/",0,6)
 
-      cacheFrom("Animations/Threat Level/",1,5)
-      cacheFrom("Animations/Threat Backing/",1,5)
+        cacheFrom("Animations/Threat Level/",1,5)
+        cacheFrom("Animations/Threat Backing/",1,5)
       }
     }
     function init() {
+      cacheEverything()
       if (localStorage.getItem("highScore") === null){
         localStorage.setItem("highScore",0)
       }
