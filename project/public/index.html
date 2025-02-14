@@ -169,6 +169,22 @@
 
     const dontGarbageCollect = []
 
+  
+    function trueMin(...args) {
+      function minUniqueValue(arr) {
+        const uniqueValues = [...new Set(arr)]; // Remove duplicates
+        return Math.min(...uniqueValues);
+      
+      }
+    if (args.length === 1 && Array.isArray(args[0])) {
+        // If a single array is passed, use it directly
+        return minUniqueValue(args[0]);
+    } else {
+        // Otherwise, treat args as multiple number inputs
+        return minUniqueValue(args)
+      }
+    }
+
     function cacheAnimal(folder) {
       for (let i = 1; i <= 5; i++) {
         cacheFrom(`${folder}${i}/`,1,3)
@@ -281,7 +297,7 @@
       else {document.body.style.background = "#000"}
       const boardWidth = boardEl.clientWidth;
       const boardHeight = boardEl.clientHeight;
-      tileSize = Math.min(boardWidth / size, boardHeight / size); 
+      tileSize = trueMin(boardWidth / size, boardHeight / size); 
       eeight = tileSize
       eighty = (10/11)*tileSize
       ate = (1/11)*tileSize
@@ -385,7 +401,7 @@
         8:"#BB0055",
         9:"#990055",
         10:"#882266",
-        }[Math.min(combo,10)]
+        }[trueMin(combo,10)]
       scoreShow(0.75,`Killstreak: ${combo}`,color,comboSize)
       comboSize **= 0.99
       }
@@ -654,16 +670,17 @@
             weaponQueue = []
             for (let kill = 0; kill < killQueue.length; kill++) {
               let buffType = animalsToWeapons[killQueue[kill].type]
-              let lowestRank = Math.min(weapons.filter(weap => weap.type === buffType).map(weap => weap.level))
+              let map = weapons.filter(weap => weap.type === buffType).map(weap => weap.level)
+              debug = map
+              let lowestRank = trueMin(weapons.filter(weap => weap.type === buffType).map(weap => weap.level))
               //If NO weapons are of the buffType, queue a new one at the beginning.
               if (lowestRank === 0 || lowestRank === 5 || lowestRank === Infinity) {
                 if (weapons.length + weaponQueue.length < weaponCap) {
                   weaponQueue.push(new Weapon(buffType,killQueue[kill].level))
                 }
-              } else {
+              } else { //else
                 for (let weap = 0; weap < weapons.length; weap++) {
                   if (weapons[weap].type === buffType && weapons[weap].level === lowestRank) {
-                    //TODO: animate
                     weapons[weap].level += 1
                     weapons[weap].flash = 60
                     break;
@@ -1396,7 +1413,7 @@
         if (mouseCol < 0) {mouseCol = 0}
         if (mouseCol > weaponCap - 1) {mouseCol = weaponCap - 1}
       } else { 
-        if (Math.min(relativeX, relativeY) < -eeight/2 || Math.max(relativeX, relativeY) > eeight*4.5 || attackMode && relativeY > eeight*4) {
+        if (trueMin(relativeX, relativeY) < -eeight/2 || Math.max(relativeX, relativeY) > eeight*4.5 || attackMode && relativeY > eeight*4) {
           mouseRow = -1
           correctThreatCalculation()
         } else {
@@ -1414,16 +1431,16 @@
               }
             } else if ("sword" === currentWeapon.type) {
               //Vertical select
-              let row = Math.max(1,Math.min(Math.round(mouseRow),3))
-              let col = Math.max(1,Math.min(Math.round(mouseCol),3))
+              let row = Math.max(1,trueMin(Math.round(mouseRow),3))
+              let col = Math.max(1,trueMin(Math.round(mouseCol),3))
               targetTiles[row-1][col-1] = true
               targetTiles[row-1][col] = true
               targetTiles[row][col-1] = true
               targetTiles[row][col] = true
             } else if ("two handed" === currentWeapon.type) {
               //Vertical select
-              let row = Math.max(0,Math.min(Math.round(mouseRow),3))
-              let col = Math.max(0,Math.min(Math.round(mouseCol),3))
+              let row = Math.max(0,trueMin(Math.round(mouseRow),3))
+              let col = Math.max(0,trueMin(Math.round(mouseCol),3))
               targetTiles[row][col] = true
               if (row > 0) targetTiles[row-1][col] = true
               if (row < 3) targetTiles[row+1][col] = true
@@ -1431,8 +1448,8 @@
               if (col < 3) targetTiles[row][col+1] = true
             }
             correctThreatCalculation()
-          } else if (!((Math.min(relativeX, relativeY) <  0 || Math.max(relativeX, relativeY) > eeight*4))) {currentAnimalRow = Math.max(0,Math.min(Math.round(mouseRow),3));
-            currentAnimalColumn = Math.max(0,Math.min(Math.round(mouseCol),3))
+          } else if (!((trueMin(relativeX, relativeY) <  0 || Math.max(relativeX, relativeY) > eeight*4))) {currentAnimalRow = Math.max(0,trueMin(Math.round(mouseRow),3));
+            currentAnimalColumn = Math.max(0,trueMin(Math.round(mouseCol),3))
           currentAnimal = grid[currentAnimalRow][currentAnimalColumn]}
         }
       
