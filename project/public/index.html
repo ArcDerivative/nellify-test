@@ -159,6 +159,8 @@
     let qKills = 0
     let qKillTurns = 0
     let score = 0
+    let appendToScore = 0
+    let appendCooldown = 0
     let combo = 0
 
     let comboSize = 1
@@ -599,13 +601,17 @@
         tileStack.push(cookBoard())
       }
       tileStack.shift();
+      if (appendCooldown > 0) appendCooldown--
       let lostFrames = Math.floor(lastDelta / (1000/60)) - 1 // Number of frames we should have expected in the interim
       for (let frame = 0; frame < lostFrames; frame++) {
         if (tileStack.length > 1) {
           tileStack.shift()
           threatLoopSeed++
         }
+        if (appendCooldown > 0) appendCooldown--
       }
+
+      if (appendCooldown === 0) {score += appendToScore; appendToScore = 0}
 
       swaySeed += 1
 
@@ -914,14 +920,16 @@
             row[j].canHoverTick = swellDelay
             shifts[i] += 1
             if (row[j-1].level >= 5) {
-              score += 100
+              appendToScore += 100
+              appendCooldown = swellDelay
               pulses[j-1] = 2
               if (weapons.length + weaponQueue.length < weaponCap) weaponQueue.push(new Weapon("spear",5))
               if (weapons.length + weaponQueue.length < weaponCap) weaponQueue.push(new Weapon("sword",5))
               if (weapons.length + weaponQueue.length < weaponCap) weaponQueue.push(new Weapon("two handed",5))
               row[j-1] = null
             } else {
-              score += row[j].level + row[j-1].level
+              appendToScore += row[j].level + row[j-1].level
+              appendCooldown = swellDelay
 
               row[j-1].canHoverTick = swellDelay
               pulses[j-1] = 1
@@ -935,7 +943,6 @@
               row[j-1].health = nextHealth
               row[j-1].maxHealth = nextMax
             }
-            if (score > localStorage.getItem("highScore")) localStorage.setItem("highScore",score)
               row[j] = null
               alreadyMerged = true
               alreadyMoved = true
