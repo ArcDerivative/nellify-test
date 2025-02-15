@@ -120,6 +120,8 @@
       constructor(x, y, frame, type = "Explosion") {this.x = x; this.y = y; this.frame = frame, this.type = type}
     }
 
+    let gameOver = false;
+
     let animalsToWeapons = { "Bokoblin": "sword", "Moblin": "two handed", "Lizalfo": "spear"}
 
     let debug = ""
@@ -457,7 +459,8 @@
     }
     smallText(guardEl.offsetLeft + guardEl.offsetWidth / 4, guardEl.offsetTop-10*bigScale, `High Score: ${localStorage.getItem("highScore")}`)
 
-    if (checkGameOver()) {
+    if (checkGameOver()) {gameOver = true;}
+    if (gameOver) {
       smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+480*realScale, "Game Over!",18)
     }else {
     smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+465*realScale, `Arrow keys / swipe controls to combine matching enemies.`)
