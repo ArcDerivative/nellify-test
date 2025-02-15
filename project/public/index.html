@@ -283,18 +283,22 @@
       guardEl.innerHTML = ''
       boardEl.innerHTML = ''
       boardEl.style.position = "fixed";
-      boardEl.style.left = `${guardEl.offsetLeft}px`; 
-      boardEl.style.top = `${guardEl.offsetTop + (guardEl.clientHeight)/11}px`;  
+      
       //SIC
-      boardEl.style.height = `${guardEl.clientWidth}px`;
-      boardEl.style.width = `${guardEl.clientWidth}px`;
+      boardEl.style.width = `${guardEl.clientWidth*0.9}px`;
+      boardEl.style.height = `${boardEl.clientWidth}px`;
+      
 
+      boardEl.style.left = `${guardEl.offsetLeft + (guardEl.clientWidth-boardEl.clientWidth)/2}px`; 
+      boardEl.style.top = `${guardEl.offsetTop + (guardEl.clientHeight)/11 + (guardEl.clientWidth-boardEl.clientWidth)/2}px`;  
+
+      resizingOffset = (guardEl.clientWidth-boardEl.clientWidth)/2
       //document.getElementById('board').style.backgroundColor = 'red';
       if (attackMode) {document.body.style.background =  "#bb4444"}//"#882222"}
       else {document.body.style.background = "#000"}
       const boardWidth = boardEl.clientWidth;
       const boardHeight = boardEl.clientHeight;
-      tileSize = trueMin(boardWidth / size, boardHeight / size); 
+      tileSize = boardWidth / size; 
       eeight = tileSize
       eighty = (10/11)*tileSize
       ate = (1/11)*tileSize
@@ -410,8 +414,8 @@
       hoverEl.style.position = "fixed";
 
       // Set dimensions (square)
-      hoverEl.style.width = `${400 * bigScale}px`;
-      hoverEl.style.height = `${100 * bigScale}px`;
+      hoverEl.style.width = `${400 * realScale}px`;
+      hoverEl.style.height = `${100 * realScale}px`;
 
       // Center it exactly on its own center
       hoverEl.style.left = `${shift}px`;
@@ -427,7 +431,7 @@
       hoverEl.style.justifyContent = "center";
       hoverEl.style.textAlign = "center";
       hoverEl.style.color = "white"; // Change text color for visibility
-      hoverEl.style.fontSize = `${actualSize*bigScale}px`; // Adjust as needed
+      hoverEl.style.fontSize = `${actualSize*realScale}px`; // Adjust as needed
 
       hoverEl.style.fontFamily = "'BotW',  sans-serif";
 
@@ -437,9 +441,11 @@
         guardEl.appendChild(hoverEl);
       }
       
+      let realScale = guardEl.clientWidth/(88*4)
+
       if (currentAnimalRow < 0 || currentAnimalColumn < 0) currentAnimal = null
 
-      if (lastDelta > 100) { smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop + 30*bigScale, "Switch to computer to reduce lag") }
+      if (lastDelta > 100) { smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop + 30*bigScale + resizingOffset, "Switch to computer to reduce lag") }
       else if (!(attackMode || currentAnimal === null || currentAnimal.health <= 0)) {
         let color = {1:"Red", 2:"Blue", 3:"Black", 4:"Silver", 5:"Golden"}[currentAnimal.level]
         if (currentAnimal.type === "Lizalfo" && color == "Red") color = "Green"
@@ -447,23 +453,23 @@
         if (combo > 0 && currentAnimal.thisCombo > 0) {
             text = `${text} <this killstreak: ${currentAnimal.thisCombo}hp>`
          }
-        if (currentAnimal.canHoverTick == 0) smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop + 30*bigScale, text)
+        if (currentAnimal.canHoverTick == 0) smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop + 30*bigScale + resizingOffset, text)
     }
     smallText(guardEl.offsetLeft + guardEl.offsetWidth / 4, guardEl.offsetTop-10*bigScale, `High Score: ${localStorage.getItem("highScore")}`)
 
     if (checkGameOver()) {
-      smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+480*bigScale, "Game Over!",18)
+      smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+480*realScale, "Game Over!",18)
     }else {
-    smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+465*bigScale, `Arrow keys / swipe controls to combine matching enemies.`)
+    smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+465*realScale, `Arrow keys / swipe controls to combine matching enemies.`)
     
     if (localStorage.getItem("seenWeapon")) {
       let text = "Tap weapon to use."
       if (localStorage.getItem("seenWeapons")) {
         text = `${text} Tap between two weapons to swap.`
       }
-      smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+480*bigScale, text)
+      smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+480*realScale, text)
       if (localStorage.getItem("seenFuse")) {
-        smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+495*bigScale, `Two matching weapons will combine if adjacent.`)
+        smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+495*realScale, `Two matching weapons will combine if adjacent.`)
       }
     }
   }
