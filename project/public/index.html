@@ -949,9 +949,13 @@
               appendToScore += 100
               appendCooldown = swellDelay
               pulses[j-1] = 2
-              if (weapons.length + weaponQueue.length < weaponCap) weaponQueue.push(new Weapon("spear",5))
+              killQueue.push(new Tile("Bokoblin",5,1))
+              killQueue.push(new Tile("Moblin",5,1))
+              killQueue.push(new Tile("Lizalfo",5,1))
+              flashSeed = swellDelay
+              /*if (weapons.length + weaponQueue.length < weaponCap) weaponQueue.push(new Weapon("spear",5))
               if (weapons.length + weaponQueue.length < weaponCap) weaponQueue.push(new Weapon("sword",5))
-              if (weapons.length + weaponQueue.length < weaponCap) weaponQueue.push(new Weapon("two handed",5))
+              if (weapons.length + weaponQueue.length < weaponCap) weaponQueue.push(new Weapon("two handed",5))*/
               row[j-1] = null
             } else {
               appendToScore += row[j].level + row[j-1].level
