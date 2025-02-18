@@ -195,9 +195,9 @@
       }
     }
     function cacheOnly(file) {
-      const img = new Image()
-      img.src = file
-      dontGarbageCollect.push(img);
+      //const img = new Image()
+      //img.src = file
+      dontGarbageCollect.push(file);
     }
     let tileSize, eighty, eeight, ate, bigScale
 
@@ -229,13 +229,37 @@
     }
     function init() {
       cacheEverything()
-      if (localStorage.getItem("highScore") === null){
-        localStorage.setItem("highScore",0)
+      function callback() {
+        if (loadedCount === dontGarbageCollect.length) {
+          if (localStorage.getItem("highScore") === null){
+            localStorage.setItem("highScore",0)
+          }
+          minimalReset();
+          spawnRandomTile();
+          spawnRandomTile();
+          requestAnimationFrame(gameLoop);
+        }
       }
-      minimalReset();
-      spawnRandomTile();
-      spawnRandomTile();
-      requestAnimationFrame(gameLoop);
+      let loadedCount = 0;
+      const images = [];
+      dontGarbageCollect.forEach((src, index) => {
+          const img = new Image();
+          img.src = src;
+          img.onload = () => {
+              loadedCount++;
+              if (loadedCount === dontGarbageCollect.length) {
+                  callback();
+              }
+          };
+          img.onerror = () => {
+              loadedCount++;
+              if (loadedCount === dontGarbageCollect.length) {
+                  callback();
+              }
+          };
+          images[index] = img; // Store to prevent garbage collection
+      })
+      
     }
 
     let lastFrameTime = 0; let lastDelta = 0;
