@@ -640,7 +640,7 @@
 
       if (appendCooldown === 0) {score += appendToScore; appendToScore = 0; if (score > localStorage.getItem("highScore")) localStorage.setItem("highScore",score)}
 
-      swaySeed += 1
+      swaySeed += 1 + Math.min(1,lostFrames)
 
       if (flashSeed == 1) {
         //Increment the combo
