@@ -972,7 +972,7 @@
             row[j].canHoverTick = swellDelay
             shifts[i] += 1
             if (row[j-1].level >= 5) {
-              appendToScore += 100
+              appendToScore += row[j].maxHealth + row[j-1].maxHealth
               appendCooldown = swellDelay
               pulses[j-1] = 2
               killQueue.push(new Tile(row[j-1].type,5,1))
