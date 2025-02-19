@@ -230,7 +230,6 @@
     function init() {
       cacheEverything()
       function callback() {
-        if (loadedCount === dontGarbageCollect.length) {
           if (localStorage.getItem("highScore") === null){
             localStorage.setItem("highScore",0)
           }
@@ -238,7 +237,6 @@
           spawnRandomTile();
           spawnRandomTile();
           requestAnimationFrame(gameLoop);
-        }
       }
       let loadedCount = 0;
       const images = [];
@@ -471,7 +469,7 @@
 
       if (currentAnimalRow < 0 || currentAnimalColumn < 0) currentAnimal = null
 
-      if (lastDelta > 100) { smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop + 30*bigScale + resizingOffset, "Switch to computer to reduce lag") }
+      if (lastDelta > 250) { smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop + 30*bigScale + resizingOffset, "Switch to computer to reduce lag") }
       else if (!(attackMode || currentAnimal === null || currentAnimal.health <= 0)) {
         let color = {1:"Red", 2:"Blue", 3:"Black", 4:"Silver", 5:"Golden"}[currentAnimal.level]
         if (currentAnimal.type === "Lizalfo" && color == "Red") color = "Green"
