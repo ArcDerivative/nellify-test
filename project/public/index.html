@@ -1251,6 +1251,7 @@
     let singleFuse = false
     let weaponQueue = []
     let killQueue = []
+    let consecutiveInducedSpawns = 0
     // Handle arrow key presses
     function handleKey(e) {
       if (attackMode){
@@ -1280,6 +1281,7 @@
           break;
       }
       if (alreadyMoved) {
+        consecutiveInducedSpawns = 0
         if (currentAnimalColumn >= 0 && currentAnimalRow >= 0){
           currentAnimal = grid[currentAnimalRow][currentAnimalColumn]
         }
@@ -1347,6 +1349,7 @@
         //Or sometimes it doesn't
         if (!allowHover) {for (let i = 0; i < weapons.length; i++)  weapons[i].selected = false}
       } else {
+        consecutiveInducedSpawns = 0
         let anyKills = false;
         for (let i = 0; i < 4; i++) {
           for (let j = 0; j < 4; j++) {
@@ -1397,7 +1400,12 @@
             }
             [weapons[i], weapons[i+1]] = [weapons[i+1],weapons[i]]
             collapseAndStack();
-            if (!singleFuse) {spawnRandomTile()}
+            if (singleFuse) {consecutiveInducedSpawns = 0} else {
+              if (consecutiveInducedSpawns++ > 0) {
+                qKillTurns++
+              }
+              spawnRandomTile()
+            }
             break;
           } 
         }
