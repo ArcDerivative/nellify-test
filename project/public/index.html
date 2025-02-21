@@ -1401,9 +1401,8 @@
             [weapons[i], weapons[i+1]] = [weapons[i+1],weapons[i]]
             collapseAndStack();
             if (singleFuse) {consecutiveInducedSpawns = 0} else {
-              if (consecutiveInducedSpawns++ > 0) {
-                qKillTurns++
-              }
+              qKillTurns+=consecutiveInducedSpawns
+              consecutiveInducedSpawns++
               spawnRandomTile()
             }
             break;
