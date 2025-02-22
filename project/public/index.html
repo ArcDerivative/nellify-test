@@ -702,16 +702,18 @@
             weaponQueue = []
             for (let kill = 0; kill < killQueue.length; kill++) {
               let buffType = animalsToWeapons[killQueue[kill].type]
+              let minimumBuffLevel = killQueue[kill].level
               let lowestRank = trueMin(weapons.filter(weap => weap.type === buffType).map(weap => weap.level))
               //If NO weapons are of the buffType, queue a new one at the beginning.
               if (lowestRank === 0 || lowestRank === 5 || lowestRank === Infinity) {
                 if (weapons.length + weaponQueue.length < weaponCap) {
-                  weaponQueue.push(new Weapon(buffType,killQueue[kill].level))
+                  weaponQueue.push(new Weapon(buffType,minimumBuffLevel))
                 }
               } else { //else
                 for (let weap = 0; weap < weapons.length; weap++) {
                   if (weapons[weap].type === buffType && weapons[weap].level === lowestRank) {
                     weapons[weap].level += 1
+                    if (weapons[weap].level < minimumBuffLevel) weapons[weap].level = minimumBuffLevel
                     weapons[weap].flash = 60
                     break;
                   }
