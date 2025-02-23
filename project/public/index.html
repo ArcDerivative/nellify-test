@@ -587,7 +587,7 @@
         animal(1, `url('Animations/Animals/${tile.tile.type}/${tile.tile.level}/${swayFrame}.png')`)
         
         if (flashSeed > 0 && tile.tile.thisHit > 0) {
-          animal(flashSeed/10 * 0.75, `url('Animations/Animal Masks/${tile.tile.type}/${tile.tile.level}/${swayFrame}.png')`)
+          animal(flashSeed/20 * 0.75, `url('Animations/Animal Masks/${tile.tile.type}/${tile.tile.level}/${swayFrame}.png')`)
         }
 
         function health(numeral, brightness, alpha, path) {
@@ -612,9 +612,9 @@
         if (flashSeed > 0 && tile.tile.thisHit > 0) {
           health(20,10,1,"white")
 
-          health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,flashSeed/10,"red")
+          health(Math.ceil(tile.tile.health/tile.tile.maxHealth * 20),100,flashSeed/20,"red")
           health(Math.ceil((tile.tile.health - tile.tile.thisHit)/tile.tile.maxHealth * 20),100,1,"red")
-          health(Math.ceil((tile.tile.health)/tile.tile.maxHealth * 20),100,flashSeed/10,"white")
+          health(Math.ceil((tile.tile.health)/tile.tile.maxHealth * 20),100,flashSeed/20,"white")
           health(Math.ceil((tile.tile.health - tile.tile.thisHit)/tile.tile.maxHealth * 20) - 1,100,1,"red")
         } else if (attackMode) {
             if (tile.tile.thisThreat === 0) {
@@ -1356,7 +1356,7 @@
               if (grid[i][j] !== null){
                 //TODO: Actually deal damage according to the weapon level
                 //Accumulate this damage to this hit and this combo
-                flashSeed = 10
+                flashSeed = 20
                 //grid[i][j] = {...grid[i][j]}
                 let damage = nextSingleHit()
                 //damage = 5
