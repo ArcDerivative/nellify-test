@@ -661,8 +661,7 @@
       for (let frame = 0; frame < lostFrames; frame++) {
         if (tileStack.length > 1) {
           tileStack.shift()
-          threatLoopSeed++
-        }
+        } threatLoopSeed++
         if (appendCooldown > 0) appendCooldown--
       }
 
