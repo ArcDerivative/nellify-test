@@ -869,6 +869,8 @@
             boardEl.appendChild(hoverEl)}
       });
       
+      let lostFrames = Math.floor(lastDelta / (1000/60)) - 1
+
       if (weaponStack.length > 1) {
         allowSelectWeapon = false;
         
@@ -878,12 +880,13 @@
         for (let frame = 0; frame < lostFrames; frame++) {
           if (weaponStack.length > 1) {
             weaponStack.shift()
-          } selectionLoopSeed++ //if lag is sufficient
+          } //if lag is sufficient
         }
       } else {
         weaponStack.push(cookStack())
         weaponStack.shift()
       }
+      selectionLoopSeed+= lostFrames
     }
 
     function printCurrentWeapon() {
