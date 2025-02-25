@@ -877,9 +877,8 @@
         let lostFrames = Math.floor(lastDelta / (1000/60)) - 1 // Number of frames we should have expected in the interim
         for (let frame = 0; frame < lostFrames; frame++) {
           if (weaponStack.length > 1) {
-            selectionLoopSeed++ //if lag is sufficient
             weaponStack.shift()
-          }
+          } selectionLoopSeed++ //if lag is sufficient
         }
       } else {
         weaponStack.push(cookStack())
