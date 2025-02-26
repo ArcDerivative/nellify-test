@@ -488,7 +488,7 @@
     smallText(guardEl.offsetLeft + guardEl.offsetWidth / 4, guardEl.offsetTop-10*bigScale, `High Score: ${localStorage.getItem("highScore")}`)
 
     if (checkGameOver()) {initialOverFrames += 1;} else {initialOverFrames = 0}
-    if (!gameOver && initialOverFrames > 1) {gameOver = true}
+    if (initialOverFrames > 2) {gameOver = true}
 
     if (gameOver) {
       smallText(guardEl.offsetLeft + guardEl.offsetWidth / 2, guardEl.offsetTop+480*realScale, "Game Over!",18)
